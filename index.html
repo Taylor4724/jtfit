@@ -383,15 +383,6 @@ function bumpDayWeek(d,oldWeek,newWeek,deload){
         const hitAll=prevSets.every(s=>s.reps>=e.repHi);
 
         recordHistory(e.id,{week:oldWeek,weight:prevCur,reps:maxReps,volume});
-        const prior=getHistory(e.id).filter(h=>h.week<oldWeek);
-        if(prior.length){
-          const prevBestVol=Math.max(...prior.map(h=>h.volume));
-          const prevBestWeight=Math.max(...prior.map(h=>h.weight));
-          const lastEntry=prior[prior.length-1];
-          if(volume>prevBestVol)events.push({name:e.name,type:'pr-volume',detail:Math.round(volume)+'lb total volume (prev best '+Math.round(prevBestVol)+'lb)'});
-          if(prevCur>prevBestWeight)events.push({name:e.name,type:'pr-weight',detail:prevCur+'lb (prev best '+prevBestWeight+'lb)'});
-          if(!deload&&prevCur<lastEntry.weight)events.push({name:e.name,type:'regression',detail:'down to '+prevCur+'lb from '+lastEntry.weight+'lb the week before'});
-        }
 
         let nw;
         if(deload)nw=Math.round(prevCur*0.6/e.inc)*e.inc;
@@ -527,6 +518,37 @@ function getRest(id){
   Object.values(WDAYS).forEach(d=>d.sections.forEach(sec=>sec.groups.forEach(g=>{if(g.exercises.some(e=>e.id===id))r=g.rest;})));
   return r;
 }
+function isPrimaryExercise(d,id){
+  let found=false;
+  WDAYS[d].sections.forEach(sec=>{if(sec.title==='PRIMARY STRENGTH')sec.groups.forEach(g=>g.exercises.forEach(e=>{if(e.id===id)found=true;}));});
+  return found;
+}
+function checkLivePR(id){
+  const ex=getEx(id);if(!ex||ex.wtype==='bodyweight')return;
+  if(!isPrimaryExercise(W.day,id))return;
+  const state=W.ex[id];if(!state)return;
+
+  if(!WEEK_SUMMARY||WEEK_SUMMARY.week!==W.week)WEEK_SUMMARY={week:W.week,byDay:{}};
+  if(!WEEK_SUMMARY.byDay[W.day])WEEK_SUMMARY.byDay[W.day]=[];
+  // recompute fresh each time so unchecking a set removes a badge that no longer applies
+  WEEK_SUMMARY.byDay[W.day]=WEEK_SUMMARY.byDay[W.day].filter(e=>e.name!==ex.name);
+
+  const allDone=state.sets.length>0&&state.sets.every(s=>s.done);
+  if(!allDone)return;
+
+  const volume=state.sets.reduce((s,x)=>s+x.weight*x.reps,0);
+  const curWeight=state.sets[0].weight;
+  const immediatePrev=getHistory(id).find(h=>h.week===W.week-1);
+
+  if(!immediatePrev){
+    WEEK_SUMMARY.byDay[W.day].push({name:ex.name,type:'pr-volume',detail:Math.round(volume)+'lb total volume — first tracked week'});
+  }else if(volume>immediatePrev.volume){
+    WEEK_SUMMARY.byDay[W.day].push({name:ex.name,type:'pr-volume',detail:Math.round(volume)+'lb total volume (up from '+Math.round(immediatePrev.volume)+'lb)'});
+    if(curWeight>immediatePrev.weight)WEEK_SUMMARY.byDay[W.day].push({name:ex.name,type:'pr-weight',detail:curWeight+'lb (up from '+immediatePrev.weight+'lb)'});
+  }else if(volume<immediatePrev.volume&&W.week!==6){
+    WEEK_SUMMARY.byDay[W.day].push({name:ex.name,type:'regression',detail:'total volume down to '+Math.round(volume)+'lb from '+Math.round(immediatePrev.volume)+'lb the week before'});
+  }
+}
 function allIds(d){
   const a=[];
   WDAYS[d].sections.forEach(sec=>sec.groups.forEach(g=>g.exercises.forEach(e=>a.push(e.id))));
@@ -649,7 +671,7 @@ function weekSummaryHTML(sum){
   if(!prs.length&&!regs.length&&!holds.length)return'';
   return`<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:10px 12px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <span style="font-size:9px;letter-spacing:2px;color:#888">WEEK ${sum.week} RESULTS</span>
+      <span style="font-size:9px;letter-spacing:2px;color:#888">WEEK ${sum.week} — ${WDAYS[W.day].label} RESULTS</span>
       <button onclick="dismissWeekSummary()" style="color:#666;font-size:13px;padding:2px 8px">✕</button>
     </div>
     ${prs.map(e=>`<div style="font-size:10px;color:#D4A84A;margin-bottom:3px">🏆 ${e.name} — ${e.detail}</div>`).join('')}
@@ -676,7 +698,7 @@ function renderWorkout(){
       </div>
       <button onclick="setWeek(1)" style="color:#888;font-size:20px;padding:14px 16px;min-width:44px" ${W.week>=6?'disabled':''}>›</button>
     </div>
-    ${WEEK_SUMMARY&&WEEK_SUMMARY.week===W.week?weekSummaryHTML(WEEK_SUMMARY):''}
+    ${WEEK_SUMMARY&&WEEK_SUMMARY.week===W.week&&WEEK_SUMMARY.byDay[W.day]&&WEEK_SUMMARY.byDay[W.day].length?weekSummaryHTML({week:W.week,events:WEEK_SUMMARY.byDay[W.day]}):''}
     <div style="display:flex;gap:8px;margin-bottom:12px">
       ${DAYORDER.map(k=>{const v=WDAYS[k];return`
         <button class="day-btn" onclick="switchDay('${k}')"
@@ -771,6 +793,11 @@ function toggleDone(id,si,gr){
   updateExCard(id,color);updateWProgress();
   if(s.done&&gr>0)startTimer(gr);
   saveWorkout();
+  if(isPrimaryExercise(W.day,id)){
+    checkLivePR(id);
+    renderWorkout();
+    return;
+  }
 }
 function updateExCard(id,color){
   const state=W.ex[id];
@@ -829,12 +856,12 @@ function setWeek(dir){
   const newWeek=Math.max(1,Math.min(6,oldWeek+dir));
   if(newWeek===oldWeek)return;
   const forward=newWeek>oldWeek;
-  let allEvents=[];
+  let byDay={};
   if(forward){
     // Moving into a week never visited before: cascade from the outgoing week's
     // actual saved results and permanently save a fresh, independent slot for it.
     ['A','B','C','D'].forEach(d=>{
-      allEvents=allEvents.concat(bumpDayWeek(d,oldWeek,newWeek,newWeek===6));
+      byDay[d]=bumpDayWeek(d,oldWeek,newWeek,newWeek===6);
     });
   }
   // Moving backward: the target week's slot already exists exactly as you left it —
@@ -847,12 +874,13 @@ function setWeek(dir){
   }else{
     applyWeekToDay(W.day);
   }
-  WEEK_SUMMARY=(forward&&allEvents.length)?{week:newWeek,events:allEvents}:null;
+  const hasAny=forward&&Object.values(byDay).some(evs=>evs.length);
+  WEEK_SUMMARY=hasAny?{week:newWeek,byDay}:null;
   saveWorkout();
   renderWorkout();
 }
 function dismissWeekSummary(){
-  WEEK_SUMMARY=null;
+  if(WEEK_SUMMARY)WEEK_SUMMARY.byDay[W.day]=[];
   renderWorkout();
 }
 function resetDay(){
