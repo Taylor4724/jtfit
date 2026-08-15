@@ -86,7 +86,7 @@ const WDAYS = {
         {id:"fp",name:"Cable Face Pulls",sets:3,repLo:15,repHi:15,weight:50,wtype:"cable",inc:5,max:200,note:"Shoulder health & rear delt primer"}
       ]}
     ]},
-    {title:"PRIMARY STRENGTH",groups:[
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
         {id:"ip",name:"Incline Barbell Press",sets:4,repLo:5,repHi:6,weight:185,wtype:"barbell",inc:5,note:"45+45+25/side — upper chest priority, add 5lb when you hit 6 reps on all 4 sets"}
       ]},
@@ -112,7 +112,7 @@ const WDAYS = {
         {id:"gw",name:"Goblet Squat (warm-up)",sets:2,repLo:10,repHi:10,weight:25,wtype:"dumbbell",inc:2.5,max:50,note:"Light movement prep only"}
       ]}
     ]},
-    {title:"PRIMARY STRENGTH",groups:[
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
         {id:"gs",name:"Goblet / Front Squat",sets:4,repLo:8,repHi:10,weight:55,wtype:"free",inc:2.5,max:150,note:"Main lift — add weight when you hit 10 reps on all 4 sets"}
       ]},
@@ -137,7 +137,7 @@ const WDAYS = {
         {id:"sp",name:"Scapular Pull-Ups / Dead Hangs",sets:2,repLo:10,repHi:10,weight:0,wtype:"bodyweight",inc:0,note:"Full hang, depress scapula deliberately"}
       ]}
     ]},
-    {title:"PRIMARY STRENGTH",groups:[
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
         {id:"wp",name:"Weighted Pull-Ups",sets:4,repLo:5,repHi:6,weight:35,wtype:"added",inc:5,max:100,note:"Wide grip — add weight when you hit 6 reps on all 4 sets"}
       ]},
@@ -167,7 +167,7 @@ const WDAYS = {
         {id:"gb",name:"Bodyweight Glute Bridge (warm-up)",sets:2,repLo:15,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Activation — squeeze 1s at top"}
       ]}
     ]},
-    {title:"PRIMARY STRENGTH",groups:[
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
         {id:"ht2",name:"Barbell Hip Thrust",sets:4,repLo:8,repHi:10,weight:135,wtype:"barbell",inc:10,note:"45+45/side — main lift this week, add 10lb when you hit 10 reps on all 4 sets"}
       ]},
@@ -186,10 +186,21 @@ const WDAYS = {
       ]}
     ]}
   ]},
-  E:{label:"WED",theme:"CORE",sub:"Rest-day core work — fresh, not after leg day",sections:[
-    {title:"CORE",groups:[
+  E:{label:"WED",theme:"CORE",sub:"Anti-Rotation · Anti-Extension · Upper/Lower Abs — fully loadable, fully progressive",sections:[
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
+      {type:"single",rest:60,exercises:[
+        {id:"pp",name:"Cable Pallof Press",sets:3,repLo:10,repHi:12,weight:20,wtype:"cable",inc:5,note:"Per side — press straight out, resist rotation — obliques/anti-rotation. First while fresh."}
+      ]},
+      {type:"single",rest:60,exercises:[
+        {id:"cr",name:"Cable Kneeling Rollout",sets:3,repLo:10,repHi:12,weight:15,wtype:"cable",inc:5,note:"Rope/handle overhead, roll out and brace back to start — anti-extension, resist arching"}
+      ]},
+      {type:"single",rest:60,exercises:[
+        {id:"cc",name:"Kneeling Cable Crunch",sets:4,repLo:12,repHi:15,weight:40,wtype:"cable",inc:5,note:"Round through the spine, crunch to hips — upper ab loading"}
+      ]}
+    ]},
+    {title:"FINISHER",groups:[
       {type:"single",rest:45,exercises:[
-        {id:"hl",name:"Hanging Leg Raise",sets:3,repLo:12,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Controlled — no swinging, curl pelvis at top"}
+        {id:"hl",name:"Hanging Leg Raise",sets:3,repLo:12,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Controlled — no swinging, curl pelvis at top — lower ab finisher"}
       ]}
     ]}
   ]}
@@ -296,7 +307,7 @@ const MTPLAN={
   DELOAD:{cal:2100,protein:195,fat:65,carbs:195}
 };
 function currentMT(){
-  const phase=(typeof WEEKPLAN!=='undefined'&&typeof W!=='undefined'&&WEEKPLAN[W.week-1])?WEEKPLAN[W.week-1].phase:'BUILD';
+  const phase=(typeof WEEKPLAN!=='undefined'&&typeof W!=='undefined'&&WEEKPLAN[cycleWeek(W.week)-1])?WEEKPLAN[cycleWeek(W.week)-1].phase:'BUILD';
   return MTPLAN[phase]||MTPLAN.BUILD;
 }
 const PF=170;
@@ -313,8 +324,10 @@ const WEEKPLAN=[
   {phase:"PEAK",note:"Volume drops back to baseline, weight peaks — push for a rep PR at this weight."},
   {phase:"DELOAD",note:"Sets auto-cut roughly in half AND weight auto-drops to ~60% of wherever you left off. This week should feel easy."}
 ];
+function cycleWeek(w){return ((w-1)%6)+1;}
+function cycleNum(w){return Math.floor((w-1)/6)+1;}
 function weekTarget(w,base){
-  const wk=Math.max(1,Math.min(6,w));
+  const wk=cycleWeek(w);
   if(wk<=2)return base;
   if(wk<=4)return base+1;
   if(wk===5)return base;
@@ -322,7 +335,7 @@ function weekTarget(w,base){
 }
 function applySetTargetForDay(d,exState){
   WDAYS[d].sections.forEach(sec=>{
-    if(sec.title!=='PRIMARY STRENGTH')return;
+    if(!sec.primary)return;
     sec.groups.forEach(g=>g.exercises.forEach(e=>{
       const state=exState[e.id];if(!state)return;
       const target=weekTarget(W.week,e.sets);
@@ -361,12 +374,15 @@ function writeWeekState(d,wk,dayEx){
 function bumpDayWeek(d,oldWeek,newWeek,deload){
   const base=initDay(d);
   const prevRaw=readWeekState(d,oldWeek);
+  const cyclingFromDeload=cycleWeek(oldWeek)===6;
+  const peakRaw=cyclingFromDeload?readWeekState(d,oldWeek-1):null;
   const events=[];
   WDAYS[d].sections.forEach(sec=>{
-    const isPrimary=sec.title==='PRIMARY STRENGTH';
+    const isPrimary=!!sec.primary;
     sec.groups.forEach(g=>g.exercises.forEach(e=>{
       const state=base[e.id];if(!state)return;
       const prevEx=prevRaw&&prevRaw[e.id]&&prevRaw[e.id].sets.length?prevRaw[e.id]:null;
+      const peakEx=peakRaw&&peakRaw[e.id]&&peakRaw[e.id].sets.length?peakRaw[e.id]:null;
 
       // carry forward last known weight for every exercise before applying any bump logic
       if(prevEx){const carried=prevEx.sets[0].weight;state.sets.forEach(s=>{s.weight=carried;});}
@@ -385,7 +401,12 @@ function bumpDayWeek(d,oldWeek,newWeek,deload){
         recordHistory(e.id,{week:oldWeek,weight:prevCur,reps:maxReps,volume});
 
         let nw;
-        if(deload)nw=Math.round(prevCur*0.6/e.inc)*e.inc;
+        if(cyclingFromDeload){
+          // New cycle: restart from the pre-deload peak, not the reduced deload weight —
+          // progress carries forward instead of resetting to the original baseline.
+          nw=peakEx?peakEx.sets[0].weight:prevCur;
+          events.push({name:e.name,type:'cycle',detail:'new cycle started at '+nw+'lb — carried from last cycle peak'});
+        }else if(deload)nw=Math.round(prevCur*0.6/e.inc)*e.inc;
         else if(hitAll)nw=Math.round((prevCur+e.inc)*100)/100;
         else{nw=prevCur;events.push({name:e.name,type:'hold',detail:'held at '+prevCur+'lb — top reps not hit last week'});}
         state.sets.forEach(s=>{s.weight=nw;});
@@ -520,7 +541,7 @@ function getRest(id){
 }
 function isPrimaryExercise(d,id){
   let found=false;
-  WDAYS[d].sections.forEach(sec=>{if(sec.title==='PRIMARY STRENGTH')sec.groups.forEach(g=>g.exercises.forEach(e=>{if(e.id===id)found=true;}));});
+  WDAYS[d].sections.forEach(sec=>{if(sec.primary)sec.groups.forEach(g=>g.exercises.forEach(e=>{if(e.id===id)found=true;}));});
   return found;
 }
 function checkLivePR(id){
@@ -668,15 +689,51 @@ function weekSummaryHTML(sum){
   const prs=sum.events.filter(e=>e.type==='pr-volume'||e.type==='pr-weight');
   const regs=sum.events.filter(e=>e.type==='regression');
   const holds=sum.events.filter(e=>e.type==='hold');
-  if(!prs.length&&!regs.length&&!holds.length)return'';
+  const cycles=sum.events.filter(e=>e.type==='cycle');
+  if(!prs.length&&!regs.length&&!holds.length&&!cycles.length)return'';
   return`<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:10px 12px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <span style="font-size:9px;letter-spacing:2px;color:#888">WEEK ${sum.week} — ${WDAYS[W.day].label} RESULTS</span>
       <button onclick="dismissWeekSummary()" style="color:#666;font-size:13px;padding:2px 8px">✕</button>
     </div>
+    ${cycles.map(e=>`<div style="font-size:10px;color:#5FB894;margin-bottom:3px">🔄 ${e.name} — ${e.detail}</div>`).join('')}
     ${prs.map(e=>`<div style="font-size:10px;color:#D4A84A;margin-bottom:3px">🏆 ${e.name} — ${e.detail}</div>`).join('')}
     ${regs.map(e=>`<div style="font-size:10px;color:#D46060;margin-bottom:3px">⚠ ${e.name} — ${e.detail}</div>`).join('')}
     ${holds.map(e=>`<div style="font-size:10px;color:#999;margin-bottom:3px">↔ ${e.name} — ${e.detail}</div>`).join('')}
+  </div>`;
+}
+function isWeekFullyComplete(wk){
+  return['A','B','C','D'].every(d=>{
+    const st=readWeekState(d,wk);
+    if(!st)return false;
+    return Object.values(st).every(ex=>ex.sets.length>0&&ex.sets.every(s=>s.done));
+  });
+}
+let SHOW_PROGRESS=false;
+function toggleProgress(){SHOW_PROGRESS=!SHOW_PROGRESS;renderWorkout();}
+function progressViewHTML(){
+  if(!SHOW_PROGRESS)return'';
+  const rows=[];
+  Object.keys(HISTORY).forEach(id=>{
+    const ex=getEx(id);if(!ex)return;
+    const h=[...HISTORY[id]].sort((a,b)=>a.week-b.week);
+    if(!h.length)return;
+    const first=h[0],last=h[h.length-1];
+    const wPct=first.weight?Math.round(((last.weight-first.weight)/first.weight)*100):0;
+    const vPct=first.volume?Math.round(((last.volume-first.volume)/first.volume)*100):0;
+    rows.push({name:ex.name,first,last,wPct,vPct,weeks:h.length});
+  });
+  const body=!rows.length?`<div style="font-size:10px;color:#777">No completed weeks yet — this fills in as you advance through the program.</div>`
+    :rows.map(r=>`<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #252525">
+        <div style="font-size:11px;color:#F0F0F0">${r.name}</div>
+        <div style="font-size:9px;color:#999;margin-top:3px">${r.first.weight}lb → ${r.last.weight}lb (${r.wPct>=0?'+':''}${r.wPct}%) · volume ${r.vPct>=0?'+':''}${r.vPct}% over ${r.weeks} tracked weeks</div>
+      </div>`).join('');
+  return`<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:9px;letter-spacing:2px;color:#888">PROGRAM PROGRESS — ALL-TIME</span>
+      <button onclick="toggleProgress()" style="color:#666;font-size:13px;padding:2px 8px">✕</button>
+    </div>
+    ${body}
   </div>`;
 }
 function renderWorkout(){
@@ -684,21 +741,25 @@ function renderWorkout(){
   const ids=allIds(d),tot=ids.reduce((n,id)=>n+W.ex[id].sets.length,0);
   const dn=ids.reduce((n,id)=>n+W.ex[id].sets.filter(s=>s.done).length,0);
   const pct=tot?Math.round(dn/tot*100):0,fin=dn===tot&&tot>0;
-  const wp=WEEKPLAN[W.week-1],dl=W.week===6;
+  const cw=cycleWeek(W.week),cn=cycleNum(W.week);
+  const wp=WEEKPLAN[cw-1],dl=cw===6;
+  const deloadDone=dl&&isWeekFullyComplete(W.week);
+  const fwdBlocked=dl&&!deloadDone;
   let html=`<div class="sticky"><div class="inner">
     <div id="save-fail" style="display:${SAVE_FAILED?'block':'none'};background:#5a2020;border:1px solid #a04040;border-radius:8px;padding:8px 10px;font-size:9px;color:#ffb0b0;margin-bottom:10px">
       Your device isn't saving progress automatically. Tap ⎘ BACKUP below after each session and keep the text somewhere safe.
     </div>
-    <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:10px">WORKOUT TRACKER · V3</div>
+    <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:10px">WORKOUT TRACKER · V3 · CYCLE ${cn}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;background:${dl?'#3a2a1a':'#161616'};border:1px solid ${dl?'#7a4a20':'#2a2a2a'};border-radius:10px;padding:6px;margin-bottom:12px">
       <button onclick="setWeek(-1)" style="color:#888;font-size:20px;padding:14px 16px;min-width:44px" ${W.week<=1?'disabled':''}>‹</button>
       <div style="text-align:center;flex:1">
-        <div style="font-size:10px;letter-spacing:2px;color:${dl?'#E08A6B':color}">WEEK ${W.week}/6 — ${wp.phase}</div>
+        <div style="font-size:10px;letter-spacing:2px;color:${dl?'#E08A6B':color}">WEEK ${cw}/6 — ${wp.phase}${dl?(deloadDone?' · READY':' · COMPLETE ALL SETS TO ADVANCE'):''}</div>
         <div style="font-size:8px;color:#999;margin-top:3px;line-height:1.4">${wp.note}</div>
       </div>
-      <button onclick="setWeek(1)" style="color:#888;font-size:20px;padding:14px 16px;min-width:44px" ${W.week>=6?'disabled':''}>›</button>
+      <button onclick="setWeek(1)" style="color:${fwdBlocked?'#444':'#888'};font-size:${deloadDone?'12px':'20px'};padding:14px 16px;min-width:44px" ${fwdBlocked?'disabled':''}>${deloadDone?'NEW CYCLE ›':'›'}</button>
     </div>
     ${WEEK_SUMMARY&&WEEK_SUMMARY.week===W.week&&WEEK_SUMMARY.byDay[W.day]&&WEEK_SUMMARY.byDay[W.day].length?weekSummaryHTML({week:W.week,events:WEEK_SUMMARY.byDay[W.day]}):''}
+    ${progressViewHTML()}
     <div style="display:flex;gap:8px;margin-bottom:12px">
       ${DAYORDER.map(k=>{const v=WDAYS[k];return`
         <button class="day-btn" onclick="switchDay('${k}')"
@@ -713,6 +774,7 @@ function renderWorkout(){
         <div style="font-size:9px;color:#888;margin-top:2px">${day.sub}</div>
       </div>
       <div style="display:flex;gap:6px">
+        <button onclick="toggleProgress()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 10px;font-size:8px;letter-spacing:1px">📈 PROGRESS</button>
         <button onclick="exportBackup()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 10px;font-size:8px;letter-spacing:1px">⎘ BACKUP</button>
         <button onclick="importBackup()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 10px;font-size:8px;letter-spacing:1px">⎗ RESTORE</button>
         <button onclick="resetDay()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 10px;font-size:8px;letter-spacing:1px">RESET</button>
@@ -853,15 +915,16 @@ function switchDay(d){
 let WEEK_SUMMARY=null;
 function setWeek(dir){
   const oldWeek=W.week;
-  const newWeek=Math.max(1,Math.min(6,oldWeek+dir));
+  const newWeek=Math.max(1,oldWeek+dir);
   if(newWeek===oldWeek)return;
   const forward=newWeek>oldWeek;
+  if(forward&&cycleWeek(oldWeek)===6&&!isWeekFullyComplete(oldWeek))return;
   let byDay={};
   if(forward){
     // Moving into a week never visited before: cascade from the outgoing week's
     // actual saved results and permanently save a fresh, independent slot for it.
     ['A','B','C','D'].forEach(d=>{
-      byDay[d]=bumpDayWeek(d,oldWeek,newWeek,newWeek===6);
+      byDay[d]=bumpDayWeek(d,oldWeek,newWeek,cycleWeek(newWeek)===6);
     });
   }
   // Moving backward: the target week's slot already exists exactly as you left it —
@@ -913,7 +976,7 @@ function renderMeal(){
       <div>
         <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:4px">MEAL PLANNER</div>
         <div style="font-size:14px;color:#F0F0F0;letter-spacing:1px">DAILY NUTRITION <span style="font-size:9px;color:#666;margin-left:10px">${sc}/${MMEALS.length}</span></div>
-        <div style="font-size:8px;color:#777;margin-top:3px">WEEK ${W.week}/6 — ${WEEKPLAN[W.week-1].phase} TARGETS</div>
+        <div style="font-size:8px;color:#777;margin-top:3px">CYCLE ${cycleNum(W.week)} · WEEK ${cycleWeek(W.week)}/6 — ${WEEKPLAN[cycleWeek(W.week)-1].phase} TARGETS</div>
       </div>
       ${sc>0?`<button onclick="resetMeal()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 14px;font-size:8px;letter-spacing:2px">RESET</button>`:''}
     </div>
