@@ -88,7 +88,7 @@ const WDAYS = {
     ]},
     {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
-        {id:"ip",name:"Incline Barbell Press",sets:4,repLo:5,repHi:6,weight:185,wtype:"barbell",inc:5,note:"45+45+25/side — upper chest priority, add 5lb when you hit 6 reps on all 4 sets"}
+        {id:"ip",name:"Incline Barbell Press",sets:5,repLo:5,repHi:6,weight:185,wtype:"barbell",inc:5,note:"45+45+25/side — upper chest priority, add 5lb when you hit 6 reps on all 4 sets"}
       ]},
       {type:"single",rest:120,exercises:[
         {id:"op",name:"Barbell OHP (rack)",sets:3,repLo:8,repHi:10,weight:125,wtype:"barbell",inc:5,note:"45+35+10+5/side — add 5lb when you hit 10 reps on all 3 sets"}
@@ -96,8 +96,8 @@ const WDAYS = {
     ]},
     {title:"HYPERTROPHY — SUPERSET",groups:[
       {type:"superset",rest:60,label:"SS1 — Lateral Delt + Upper Chest (priority)",exercises:[
-        {id:"dl",name:"DB Lateral Raises",sets:4,repLo:12,repHi:15,weight:20,wtype:"dumbbell",inc:2.5,max:50,note:"Strict, no swing"},
-        {id:"lf",name:"Low-to-High Cable Fly",sets:4,repLo:12,repHi:15,weight:25,wtype:"cable",inc:5,max:200,note:"Pulley lowest — cross at eye level"}
+        {id:"dl",name:"DB Lateral Raises",sets:6,repLo:12,repHi:15,weight:20,wtype:"dumbbell",inc:2.5,max:50,note:"Strict, no swing"},
+        {id:"lf",name:"Low-to-High Cable Fly",sets:5,repLo:12,repHi:15,weight:25,wtype:"cable",inc:5,max:200,note:"Pulley lowest — cross at eye level"}
       ]}
     ]},
     {title:"FINISHER",groups:[
@@ -114,10 +114,10 @@ const WDAYS = {
     ]},
     {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
-        {id:"gs",name:"Goblet / Front Squat",sets:4,repLo:8,repHi:10,weight:55,wtype:"free",inc:2.5,max:150,note:"Main lift — add weight when you hit 10 reps on all 4 sets"}
+        {id:"gs",name:"Landmine Squat",sets:5,repLo:8,repHi:10,weight:55,wtype:"free",inc:5,max:300,note:"Barbell in landmine attachment, held at chest — plates on the free end, no DB ceiling. Add weight when you hit 10 reps on all 4 sets"}
       ]},
       {type:"single",rest:120,exercises:[
-        {id:"bs",name:"Bulgarian Split Squat (DB)",sets:3,repLo:10,repHi:12,weight:30,wtype:"dumbbell",inc:2.5,max:80,note:"Per leg — quad sweep + imbalance fix"}
+        {id:"bs",name:"Bulgarian Split Squat (DB)",sets:3,repLo:10,repHi:12,weight:30,wtype:"dumbbell",inc:2.5,max:50,note:"Per leg — quad sweep + imbalance fix"}
       ]}
     ]},
     {title:"POSTERIOR TOUCH",groups:[
@@ -127,19 +127,19 @@ const WDAYS = {
     ]},
     {title:"FINISHER",groups:[
       {type:"single",rest:45,exercises:[
-        {id:"lc",name:"DB Leg Curl",sets:3,repLo:15,repHi:15,weight:25,wtype:"dumbbell",inc:2.5,max:50,note:"Hold DB between feet on bench — last exercise, keep it quick"}
+        {id:"lc",name:"Cable Leg Curl",sets:3,repLo:15,repHi:15,weight:30,wtype:"cable",inc:5,max:200,note:"Ankle strap attachment — no slipping, consistent tension through the range"}
       ]}
     ]}
   ]},
   C:{label:"THU",theme:"UPPER B — PULL",sub:"Back · Biceps · Rear Delts · 2nd chest + delt touch",sections:[
     {title:"WARM-UP",groups:[
       {type:"single",rest:45,exercises:[
-        {id:"sp",name:"Scapular Pull-Ups / Dead Hangs",sets:2,repLo:10,repHi:10,weight:0,wtype:"bodyweight",inc:0,note:"Full hang, depress scapula deliberately"}
+        {id:"fp2",name:"Cable Face Pulls",sets:3,repLo:15,repHi:15,weight:50,wtype:"cable",inc:5,max:200,note:"Same as Monday — shoulder health without the pain, replaces scapular pull-ups"}
       ]}
     ]},
     {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
-        {id:"wp",name:"Weighted Pull-Ups",sets:4,repLo:5,repHi:6,weight:35,wtype:"added",inc:5,max:100,note:"Wide grip — add weight when you hit 6 reps on all 4 sets"}
+        {id:"wp",name:"Pull-Ups (Bodyweight)",sets:4,repLo:6,repHi:10,weight:0,wtype:"bodyweight",inc:0,note:"Wide grip — no added weight available, focus on hitting the top of the rep range"}
       ]},
       {type:"single",rest:120,exercises:[
         {id:"br",name:"Barbell Row (wide grip)",sets:3,repLo:6,repHi:8,weight:185,wtype:"barbell",inc:5,note:"45+45+25/side — no hip drive"}
@@ -151,13 +151,13 @@ const WDAYS = {
         {id:"rd",name:"Bent-Over DB Rear Delt Raise",sets:3,repLo:15,repHi:15,weight:15,wtype:"dumbbell",inc:2.5,max:50,note:"Slight elbow bend, raise to shoulder height"}
       ]},
       {type:"superset",rest:60,label:"SS2 — Upper Chest + Biceps",exercises:[
-        {id:"di",name:"Incline DB Press",sets:3,repLo:10,repHi:12,weight:60,wtype:"dumbbell",inc:2.5,max:100,note:"2nd upper chest touch this week — DB variation"},
-        {id:"ic",name:"Incline DB Curl",sets:3,repLo:10,repHi:12,weight:35,wtype:"dumbbell",inc:2.5,max:50,note:"Full stretch at bottom — biceps maintenance"}
+        {id:"di",name:"Cable Incline Press",sets:4,repLo:10,repHi:12,weight:60,wtype:"cable",inc:5,max:200,note:"2nd upper chest touch — wide grip, no weight ceiling. Bench stays fixed at press angle all superset"},
+        {id:"ic",name:"Standing DB Curl",sets:3,repLo:10,repHi:12,weight:35,wtype:"dumbbell",inc:2.5,max:50,note:"Standing, strict — no bench needed, keeps the superset moving without adjusting anything"}
       ]}
     ]},
     {title:"FINISHER",groups:[
       {type:"single",rest:45,exercises:[
-        {id:"cl",name:"Cable Lateral Raise",sets:3,repLo:15,repHi:20,weight:20,wtype:"cable",inc:5,max:200,note:"2nd lateral delt touch this week — light, strict, last exercise"}
+        {id:"cl",name:"Cable Lateral Raise",sets:5,repLo:15,repHi:20,weight:20,wtype:"cable",inc:5,max:200,note:"2nd lateral delt touch this week — light, strict, last exercise"}
       ]}
     ]}
   ]},
@@ -169,7 +169,7 @@ const WDAYS = {
     ]},
     {title:"PRIMARY STRENGTH",primary:true,groups:[
       {type:"single",rest:150,exercises:[
-        {id:"ht2",name:"Barbell Hip Thrust",sets:4,repLo:8,repHi:10,weight:135,wtype:"barbell",inc:10,note:"45+45/side — main lift this week, add 10lb when you hit 10 reps on all 4 sets"}
+        {id:"ht2",name:"Barbell Hip Thrust",sets:5,repLo:8,repHi:10,weight:135,wtype:"barbell",inc:10,note:"45+45/side — main lift this week, add 10lb when you hit 10 reps on all 4 sets"}
       ]},
       {type:"single",rest:120,exercises:[
         {id:"rl",name:"Romanian Deadlift",sets:3,repLo:10,repHi:12,weight:135,wtype:"barbell",inc:5,note:"45+45/side — slow 3s eccentric"}
@@ -177,134 +177,38 @@ const WDAYS = {
     ]},
     {title:"QUAD TOUCH",groups:[
       {type:"single",rest:75,exercises:[
-        {id:"wl",name:"Walking Lunge (DB)",sets:3,repLo:12,repHi:12,weight:25,wtype:"dumbbell",inc:2.5,max:60,note:"Per leg — lighter touch, main squat push is Tuesday"}
+        {id:"wl",name:"Walking Lunge (DB)",sets:4,repLo:12,repHi:12,weight:25,wtype:"dumbbell",inc:2.5,max:50,note:"Per leg — lighter touch, main squat push is Tuesday"}
       ]}
     ]},
     {title:"FINISHER",groups:[
       {type:"single",rest:45,exercises:[
-        {id:"gk",name:"Cable Glute Kickback",sets:3,repLo:15,repHi:15,weight:20,wtype:"cable",inc:5,max:200,note:"Squeeze at top, no low back arch — last exercise, keep it quick"}
+        {id:"gk",name:"Cable Glute Kickback",sets:4,repLo:15,repHi:15,weight:20,wtype:"cable",inc:5,max:200,note:"Squeeze at top, no low back arch — last exercise, keep it quick"}
       ]}
     ]}
   ]},
-  E:{label:"WED",theme:"CORE",sub:"Anti-Rotation · Anti-Extension · Upper/Lower Abs — fully loadable, fully progressive",sections:[
-    {title:"PRIMARY STRENGTH",primary:true,groups:[
-      {type:"single",rest:60,exercises:[
-        {id:"pp",name:"Cable Pallof Press",sets:3,repLo:10,repHi:12,weight:20,wtype:"cable",inc:5,note:"Per side — press straight out, resist rotation — obliques/anti-rotation. First while fresh."}
-      ]},
-      {type:"single",rest:60,exercises:[
-        {id:"cr",name:"Cable Kneeling Rollout",sets:3,repLo:10,repHi:12,weight:15,wtype:"cable",inc:5,note:"Rope/handle overhead, roll out and brace back to start — anti-extension, resist arching"}
-      ]},
-      {type:"single",rest:60,exercises:[
-        {id:"cc",name:"Kneeling Cable Crunch",sets:4,repLo:12,repHi:15,weight:40,wtype:"cable",inc:5,note:"Round through the spine, crunch to hips — upper ab loading"}
+  E:{label:"WED",theme:"CORE",sub:"Obliques · Upper/Lower Abs — full-range, loadable, fully progressive",sections:[
+    {title:"CORE — TECHNICAL FIRST",groups:[
+      {type:"single",rest:45,exercises:[
+        {id:"hl",name:"Hanging Leg Raise",sets:3,repLo:12,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Controlled — no swinging, curl pelvis at top. Done first — needs the most grip/lat stability, do it fresh"}
       ]}
     ]},
-    {title:"FINISHER",groups:[
-      {type:"single",rest:45,exercises:[
-        {id:"hl",name:"Hanging Leg Raise",sets:3,repLo:12,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Controlled — no swinging, curl pelvis at top — lower ab finisher"}
+    {title:"PRIMARY STRENGTH",primary:true,groups:[
+      {type:"single",rest:60,exercises:[
+        {id:"wc",name:"Cable Woodchop (high-to-low)",sets:4,repLo:10,repHi:12,weight:25,wtype:"cable",inc:5,note:"Per side — full rotation through the torso, obliques/definition"}
+      ]},
+      {type:"single",rest:60,exercises:[
+        {id:"ws",name:"Weighted Sit-up (DB at chest)",sets:4,repLo:12,repHi:15,weight:20,wtype:"dumbbell",inc:2.5,note:"Full range floor to seated — feet anchored, controlled down. Last — most forgiving movement, fine fatigued"}
       ]}
     ]}
   ]}
 };
 
 /* ── MEAL DATA WITH MEASUREMENTS ──────────────────────── */
-const MMEALS=[
-  {id:"b",label:"BREAKFAST",time:"6:45–7:15 AM",icon:"☀",options:[
-    {id:"A",name:"3 Eggs + 4 Egg Whites + English Muffin + Oatmeal",
-     measure:"3 large eggs · 4 egg whites (½ cup / 120ml liquid) · 1 sourdough English muffin (130g, split) · ¾ cup dry oats (60g), cooked",
-     prep:"Cook eggs in pan, toast muffin, oats on the side. 10 min.",cal:633,protein:47,fat:18,carbs:66},
-    {id:"B",name:"Core Power Elite 42g + Banana + Oatmeal",
-     measure:"1 Core Power Elite bottle (14 fl oz / 414ml) · 1 medium banana (7 in / 118g) · ¾ cup dry oats (60g), cooked",
-     prep:"Grab from fridge, peel banana, microwave oats 2 min.",cal:560,protein:51,fat:9,carbs:76},
-    {id:"C",name:"5 Egg Whites + 3 Eggs + Broccoli + Oatmeal",
-     measure:"5 egg whites (⅝ cup / 150ml liquid) · 3 large eggs · 1 cup broccoli florets (91g) · ¾ cup dry oats (60g), cooked",
-     prep:"Scramble, microwave broccoli 3 min, oats 2 min.",cal:615,protein:51,fat:19,carbs:47},
-    {id:"D",name:"Yogurt + Banana + Almonds + Whey + Oatmeal",
-     measure:"1 Chobani 20g yogurt cup (150g) · 1 medium banana (118g) · 1 oz almonds (28g / ~23 nuts) · 1 scoop whey (33g) in 1 cup unsweetened almond milk (240ml) · ¾ cup dry oats (60g), cooked",
-     prep:"No cook except oats. Shake whey in almond milk.",cal:694,protein:59,fat:21,carbs:76},
-    {id:"E",name:"Jimmy Dean Bowl + Protein Yogurt + Oatmeal",
-     measure:"1 Jimmy Dean Meat Lovers Bowl (7 oz / 198g package) · 1 Chobani 20g yogurt cup (150g) · ¾ cup dry oats (60g), cooked",
-     prep:"Microwave bowl 90 sec, oats 2 min. Bowl max 2×/week.",cal:765,protein:51,fat:32,carbs:75,flag:"High sodium — limit 2×/week"}
-  ]},
-  {id:"l",label:"MEAL 2 — LUNCH",time:"12–1 PM",icon:"◑",options:[
-    {id:"A",name:"8 oz Ground Turkey + Broccoli + Rice",
-     measure:"8 oz (226g) 93/7 ground turkey · 1.5 cups broccoli florets (135g) · 1 cup cooked white rice (158g)",
-     prep:"Brown turkey 8 min, microwave broccoli + rice.",cal:545,protein:48,fat:18,carbs:54},
-    {id:"B",name:"8 oz Ground Chicken + Green Beans + Rice",
-     measure:"8 oz (226g) ground chicken breast · 1.5 cups green beans (170g) · 1 cup cooked white rice (158g)",
-     prep:"Same prep, add rice. Lightest protein source.",cal:515,protein:48,fat:14,carbs:56},
-    {id:"C",name:"6 oz Tilapia Tacos + Avocado + Rice",
-     measure:"6 oz (170g) Kirkland tilapia loin · 2 Don Pancho street taco tortillas · ½ medium avocado (75g) · 1 cup cooked white rice (158g)",
-     prep:"Pan-sear tilapia 3 min/side. Warm tortillas + rice.",cal:590,protein:42,fat:14,carbs:70},
-    {id:"D",name:"Turkey Tacos + Mozzarella + Rice",
-     measure:"6 oz (170g) 93/7 ground turkey · 2 Don Pancho street taco tortillas · 1 oz (28g) shredded mozzarella · 1.5 cups green beans (170g) · 1 cup cooked white rice (158g)",
-     prep:"Brown turkey, build tacos, melt cheese, add rice.",cal:647,protein:50,fat:21,carbs:66},
-    {id:"E",name:"Think Bar + Yogurt + Almonds",
-     measure:"1 Think! protein bar (60g package) · 1 Chobani 20g yogurt cup (150g) · 1 oz almonds (28g / ~23 nuts)",
-     prep:"No prep. Busy days only.",cal:394,protein:45,fat:22,carbs:37}
-  ]},
-  {id:"w",label:"MEAL 3 — AFTERNOON FUEL",time:"3:30–4 PM · before you leave work",icon:"⚡",
-   tip:"Eat this even if you're not hungry yet. It's what buys you the ~2hrs to commute + train without needing dinner first — this is the difference between the 5:30 and 7:30 workout.",options:[
-    {id:"A",name:"Core Power Elite 42g",
-     measure:"1 Core Power Elite bottle (14 fl oz / 414ml)",
-     prep:"Grab from fridge before you leave. No mixing.",cal:230,protein:42,fat:5,carbs:9},
-    {id:"B",name:"Banana + Whey in Almond Milk",
-     measure:"1 medium banana (118g) · 1 scoop Gold Standard Whey (33g) in 1 cup unsweetened almond milk (240ml)",
-     prep:"Most filling option — best if commute+workout runs long.",cal:255,protein:25,fat:1,carbs:28},
-    {id:"C",name:"Whey Protein in Water",
-     measure:"1 scoop Gold Standard Whey (33g) in 10–12 oz (300–355ml) cold water",
-     prep:"Lowest calorie. Pick this if lunch ran late/large.",cal:120,protein:24,fat:1,carbs:3},
-    {id:"D",name:"Bone Broth + Protein Yogurt",
-     measure:"1 Bare Bones bone broth packet in 8 oz (240ml) hot water · 1 Chobani 20g yogurt cup (150g)",
-     prep:"Warm broth, cold yogurt. Good if desk has a kettle.",cal:145,protein:30,fat:0,carbs:8}
-  ]},
-  {id:"d",label:"DINNER — POST-WORKOUT",time:"6:30–7 PM if you train at 5:30 · 7:45–8:15 PM if it slips to 7:30",icon:"●",
-   tip:"Same meal either way — it's just your recovery dinner after training, whenever training actually happens.",options:[
-    {id:"A",name:"8 oz Tilapia + Green Beans + Rice",
-     measure:"8 oz (226g) Kirkland tilapia loins · 1.5 cups green beans (170g) · 1 tbsp olive oil (14ml) for cooking · 1 cup cooked white rice (158g)",
-     prep:"Pan-sear in olive oil 4 min/side. Add rice.",cal:477,protein:53,fat:2,carbs:56},
-    {id:"B",name:"8 oz Ground Beef + Green Beans + Rice",
-     measure:"8 oz (226g) 93/7 ground beef · 1.5 cups green beans (170g) · 1 cup cooked white rice (158g)",
-     prep:"Brown, drain fat, add rice. Best fat for TRT.",cal:657,protein:55,fat:22,carbs:56},
-    {id:"C",name:"8 oz Ground Turkey + Broccoli + Rice",
-     measure:"8 oz (226g) 93/7 ground turkey · 1.5 cups broccoli florets (135g) · 1 cup cooked white rice (158g)",
-     prep:"Leanest ground meat dinner. Add rice.",cal:597,protein:53,fat:18,carbs:54},
-    {id:"D",name:"8 oz Ground Chicken + Mixed Veg + Rice",
-     measure:"8 oz (226g) ground chicken · 1 cup broccoli (91g) · 1 cup green beans (113g) · 1 cup cooked white rice (158g)",
-     prep:"Rotate seasonings each night. Add rice.",cal:587,protein:51,fat:14,carbs:66},
-    {id:"E",name:"8 oz Tilapia Tacos + Avocado",
-     measure:"8 oz (226g) Kirkland tilapia · 2 Don Pancho street taco tortillas · ½ medium avocado (75g) · 1 cup green beans (113g)",
-     prep:"Sear tilapia, flake into tortillas, top avo.",cal:442,protein:52,fat:12,carbs:38},
-    {id:"F",name:"8 oz Turkey + Broccoli + Mozzarella + Rice",
-     measure:"8 oz (226g) 93/7 ground turkey · 1.5 cups broccoli (135g) · 1 oz (28g) shredded mozzarella melted on top · 1 cup cooked white rice (158g)",
-     prep:"Brown turkey, microwave broccoli, melt cheese, add rice.",cal:677,protein:60,fat:23,carbs:55}
-  ]},
-  {id:"s",label:"EVENING SNACK",time:"8:30–9 PM · skip if dinner already landed after 8",icon:"○",options:[
-    {id:"A",name:"Think! 25g Protein Bar",
-     measure:"1 Think! protein bar (60g package)",
-     prep:"Default option.",cal:230,protein:25,fat:8,carbs:23},
-    {id:"B",name:"Almonds + Protein Yogurt",
-     measure:"1 oz almonds (28g / ~23 whole nuts) · 1 Chobani 20g protein yogurt (150g cup)",
-     prep:"1 oz almonds + 1 yogurt cup.",cal:264,protein:26,fat:14,carbs:14},
-    {id:"C",name:"'Ndulge Greek Yogurt Bar",
-     measure:"1 'Ndulge Salted Caramel Almond bar (3 fl oz / 88ml bar from 3-pack box)",
-     prep:"Best dessert substitute. 10g protein.",cal:160,protein:10,fat:8,carbs:16},
-    {id:"D",name:"Grapes + Protein Yogurt",
-     measure:"1 cup grapes (~32 grapes / 150g) · 1 Chobani 20g protein yogurt (150g cup)",
-     prep:"Refreshing. Light evening option.",cal:160,protein:21,fat:0,carbs:24},
-    {id:"E",name:"2 Protein Yogurts",
-     measure:"2 Chobani 20g protein yogurt cups (2 × 150g cups)",
-     prep:"Best protein:cal snack.",cal:200,protein:40,fat:0,carbs:16},
-    {id:"F",name:"Bone Broth + Almonds",
-     measure:"1 Bare Bones bone broth packet in 8 oz (240ml) hot water · 1 oz almonds (28g / ~23 nuts)",
-     prep:"Good wind-down option.",cal:209,protein:16,fat:14,carbs:6}
-  ]}
-];
-
 const MTPLAN={
-  BUILD:{cal:2250,protein:195,fat:70,carbs:210},
-  RAMP:{cal:2400,protein:195,fat:75,carbs:240},
-  PEAK:{cal:2250,protein:195,fat:70,carbs:210},
-  DELOAD:{cal:2100,protein:195,fat:65,carbs:195}
+  BUILD:{cal:2950,protein:195},
+  RAMP:{cal:3100,protein:195},
+  PEAK:{cal:2950,protein:195},
+  DELOAD:{cal:2800,protein:195}
 };
 function currentMT(){
   const phase=(typeof WEEKPLAN!=='undefined'&&typeof W!=='undefined'&&WEEKPLAN[cycleWeek(W.week)-1])?WEEKPLAN[cycleWeek(W.week)-1].phase:'BUILD';
@@ -313,7 +217,6 @@ function currentMT(){
 const PF=170;
 const DC={A:"#D4A84A",B:"#A882D8",C:"#6A9FD0",D:"#E08A6B",E:"#8a8a8a"};
 const DAYORDER=['A','B','E','C','D'];
-const MC=["#D4A84A","#6A9FD0","#5ABF6A","#E07030","#A882D8"];
 
 /* ── 6-WEEK BLOCK PLAN ─────────────────────────────────── */
 const WEEKPLAN=[
@@ -421,11 +324,12 @@ function bumpDayWeek(d,oldWeek,newWeek,deload){
 /* ── STATE ─────────────────────────────────────────────── */
 let activeTab='training';
 let W={day:'A',week:1,ex:{}};
-let M={sel:{},open:'b',oil:true};
+let M={date:'',cal:0,protein:0};
 let TM=null,TI=null;
 let SAVE_FAILED=false;
 
 /* ── LOCAL STORAGE ─────────────────────────────────────── */
+function todayStr(){return new Date().toISOString().slice(0,10);}
 function flashSaved(){
   const b=document.getElementById('saved-badge');
   if(!b)return;
@@ -434,9 +338,7 @@ function flashSaved(){
 }
 function saveMeal(){
   try{
-    localStorage.setItem('trn3_msel',JSON.stringify(M.sel));
-    localStorage.setItem('trn3_moil',String(M.oil));
-    localStorage.setItem('trn3_mopen',M.open||'');
+    localStorage.setItem('trn3_mlog',JSON.stringify(M));
     flashSaved();
   }catch(e){}
 }
@@ -462,12 +364,13 @@ function loadSaved(){
     localStorage.removeItem(t);
   }catch(e){SAVE_FAILED=true;}
   try{
-    const msel=localStorage.getItem('trn3_msel');
-    if(msel)M.sel=JSON.parse(msel);
-    const moil=localStorage.getItem('trn3_moil');
-    if(moil!==null)M.oil=(moil==='true');
-    const mopen=localStorage.getItem('trn3_mopen');
-    if(mopen!==null)M.open=mopen||null;
+    const mlog=localStorage.getItem('trn3_mlog');
+    if(mlog){
+      const parsed=JSON.parse(mlog);
+      if(parsed.date===todayStr()){M=parsed;}else{M={date:todayStr(),cal:0,protein:0};}
+    }else{
+      M={date:todayStr(),cal:0,protein:0};
+    }
     const wday=localStorage.getItem('trn3_wday');
     if(wday&&WDAYS[wday])W.day=wday;
     const wk=localStorage.getItem('trn3_week');
@@ -574,32 +477,6 @@ function allIds(d){
   const a=[];
   WDAYS[d].sections.forEach(sec=>sec.groups.forEach(g=>g.exercises.forEach(e=>a.push(e.id))));
   return a;
-}
-function mTotals(){
-  const t={cal:0,protein:0,fat:0,carbs:0};
-  MMEALS.forEach(m=>{const o=m.options.find(x=>x.id===M.sel[m.id]);if(o){t.cal+=o.cal;t.protein+=o.protein;t.fat+=o.fat;t.carbs+=o.carbs;}});
-  if(M.oil){t.cal+=120;t.fat+=14;}
-  return t;
-}
-function mStatus(mi,opt){
-  const budget=currentMT().cal-(M.oil?120:0);
-  let pc=0,pp=0;
-  for(let i=0;i<mi;i++){const o=MMEALS[i].options.find(x=>x.id===M.sel[MMEALS[i].id]);if(o){pc+=o.cal;pp+=o.protein;}}
-  const ac=pc+opt.cal,ap=pp+opt.protein,rem=budget-ac;
-  const sub=MMEALS.slice(mi+1);
-  if(!sub.length){
-    if(ac>budget+80)return{code:'over',label:'OVER',msg:(ac-budget)+'cal over'};
-    if(ap<PF)return{code:'lp',label:'LOW PRO',msg:'Only '+ap+'g protein'};
-    if(ac>budget)return{code:'warn',label:'TIGHT',msg:(ac-budget)+'cal over'};
-    if(ap>=currentMT().protein)return{code:'ideal',label:'IDEAL',msg:null};
-    return{code:'ok',label:null,msg:null};
-  }
-  const minC=sub.reduce((s,m)=>s+Math.min(...m.options.map(o=>o.cal)),0);
-  const maxP=sub.reduce((s,m)=>s+Math.max(...m.options.map(o=>o.protein)),0);
-  if(rem<minC)return{code:'over',label:'OVER',msg:(minC-rem)+'cal short for '+sub.length+' more meals'};
-  if(ap+maxP<PF)return{code:'lp',label:'LOW PRO',msg:'Max reachable: '+(ap+maxP)+'g'};
-  if(rem-minC<70)return{code:'warn',label:'TIGHT',msg:(rem-minC)+'cal buffer'};
-  return{code:'ok',label:null,msg:null};
 }
 
 /* ── TIMER ─────────────────────────────────────────────── */
@@ -956,125 +833,71 @@ function resetDay(){
 }
 
 /* ── MEAL RENDER ───────────────────────────────────────── */
-function badgeH(st){
-  if(!st.label)return'';
-  const m={over:{bg:'#3A1010',c:'#F07070'},lp:{bg:'#352000',c:'#E0A040'},warn:{bg:'#2E2000',c:'#D4A840'},ideal:{bg:'#0E2A10',c:'#70D080'},ok:{bg:'transparent',c:'transparent'}}[st.code]||{bg:'transparent',c:'transparent'};
-  return`<span class="badge" style="background:${m.bg};color:${m.c};border:1px solid ${m.c}44">${st.label}</span>`;
-}
 function renderMeal(){
-  const t=mTotals(),sc=Object.keys(M.sel).length,all=sc===MMEALS.length;
-  const rem={cal:currentMT().cal-t.cal,protein:currentMT().protein-t.protein};
-  function pbar(label,v,mx,c){const p=Math.min(100,(v/mx)*100),bc=v>mx?'#D46060':p>88?'#D09040':c;return`<div style="margin-bottom:8px">
-    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+  const mt=currentMT();
+  const remCal=mt.cal-M.cal,remPro=mt.protein-M.protein;
+  const pct=(v,mx)=>Math.min(100,Math.round((v/mx)*100));
+  function pbar(label,v,mx,c){const p=pct(v,mx),over=v>mx,bc=over?'#D46060':p>88?'#D09040':c;return`<div style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
       <span style="font-size:9px;letter-spacing:3px;color:#707070">${label}</span>
-      <span style="font-size:10px;color:${bc}">${v}${mx===currentMT().cal?'':' g'}<span style="color:#505050"> / ${mx}${mx===currentMT().cal?'':' g'}</span></span>
+      <span style="font-size:12px;color:${bc}">${v}${label==='CALORIES'?'':'g'}<span style="color:#505050"> / ${mx}${label==='CALORIES'?'':'g'}</span></span>
     </div>
     <div class="pbar"><div class="pfill" style="width:${p}%;background:${bc}"></div></div>
   </div>`;}
+  const verdict=M.protein>=mt.protein&&M.cal<=mt.cal+100?{msg:'Protein hit, calories on target — solid day',c:'#5ABF6A'}
+    :M.protein<mt.protein?{msg:`${mt.protein-M.protein}g protein still needed today`,c:'#D09040'}
+    :{msg:`${M.cal-mt.cal}cal over target`,c:'#D46060'};
   let html=`<div class="sticky"><div class="inner" style="max-width:580px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div>
-        <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:4px">MEAL PLANNER</div>
-        <div style="font-size:14px;color:#F0F0F0;letter-spacing:1px">DAILY NUTRITION <span style="font-size:9px;color:#666;margin-left:10px">${sc}/${MMEALS.length}</span></div>
+        <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:4px">DAILY LOG</div>
+        <div style="font-size:14px;color:#F0F0F0;letter-spacing:1px">NUTRITION</div>
         <div style="font-size:8px;color:#777;margin-top:3px">CYCLE ${cycleNum(W.week)} · WEEK ${cycleWeek(W.week)}/6 — ${WEEKPLAN[cycleWeek(W.week)-1].phase} TARGETS</div>
       </div>
-      ${sc>0?`<button onclick="resetMeal()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 14px;font-size:8px;letter-spacing:2px">RESET</button>`:''}
+      <button onclick="resetMeal()" style="border:1px solid #3a3a3a;border-radius:6px;color:#888;padding:7px 14px;font-size:8px;letter-spacing:2px">RESET DAY</button>
     </div>
-    ${pbar('CALORIES',t.cal,currentMT().cal,'#6A9FD0')}
-    ${pbar('PROTEIN',t.protein,currentMT().protein,'#D4A84A')}
-    ${pbar('FAT',t.fat,currentMT().fat,'#A882D8')}
-    ${sc>0&&!all?`<div style="display:flex;gap:12px;margin-top:8px;padding:7px 12px;background:#1e1e1e;border-radius:6px;border:1px solid #2e2e2e;flex-wrap:wrap">
-      <span style="font-size:9px;color:#A8A8A8"><span style="color:${rem.cal<0?'#D46060':'#F0F0F0'}">${Math.abs(rem.cal)}</span><span style="color:#888"> cal ${rem.cal<0?'over':'left'}</span></span>
+    ${pbar('CALORIES',M.cal,mt.cal,'#6A9FD0')}
+    ${pbar('PROTEIN',M.protein,mt.protein,'#D4A84A')}
+    <div style="display:flex;gap:12px;margin-bottom:16px;padding:9px 12px;background:#1e1e1e;border-radius:6px;border:1px solid #2e2e2e;flex-wrap:wrap">
+      <span style="font-size:9px;color:#A8A8A8"><span style="color:${remCal<0?'#D46060':'#F0F0F0'}">${Math.abs(remCal)}</span><span style="color:#888"> cal ${remCal<0?'over':'left'}</span></span>
       <span style="font-size:9px;color:#606060">·</span>
-      <span style="font-size:9px;color:#A8A8A8"><span style="color:${rem.protein<=0?'#5ABF6A':'#D4A84A'}">${Math.max(0,rem.protein)}g</span><span style="color:#888"> protein needed</span></span>
-    </div>`:''}
-    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;touch-action:manipulation" onclick="toggleOil()">
-      <div style="width:36px;height:20px;border-radius:10px;position:relative;background:${M.oil?'#D4A84A':'#404040'};transition:background .2s;flex-shrink:0">
-        <div style="position:absolute;top:2px;left:${M.oil?16:2}px;width:16px;height:16px;border-radius:8px;background:#fff;transition:left .2s"></div>
-      </div>
-      <span style="font-size:8px;letter-spacing:2px;color:${M.oil?'#D4A84A':'#888'}">OLIVE OIL +120 CAL / 1 TBSP (14ML)</span>
-    </label>
+      <span style="font-size:9px;color:#A8A8A8"><span style="color:${remPro<=0?'#5ABF6A':'#D4A84A'}">${Math.max(0,remPro)}g</span><span style="color:#888"> protein left</span></span>
+    </div>
+    <div style="font-size:8px;letter-spacing:2px;color:#888;margin-bottom:8px">LOG A MEAL</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="log-cal" type="number" inputmode="numeric" placeholder="calories" style="flex:1;background:#161616;border:1px solid #2e2e2e;border-radius:6px;color:#F0F0F0;padding:11px;font-size:13px">
+      <input id="log-pro" type="number" inputmode="numeric" placeholder="protein (g)" style="flex:1;background:#161616;border:1px solid #2e2e2e;border-radius:6px;color:#F0F0F0;padding:11px;font-size:13px">
+      <button onclick="logMeal()" style="background:#D4A84A22;border:1px solid #D4A84A;border-radius:6px;color:#D4A84A;padding:0 18px;font-size:13px">+</button>
+    </div>
   </div></div>
-  <div style="max-width:580px;margin:14px auto 0;padding:0 16px">`;
-  MMEALS.forEach((meal,mi)=>{
-    const mc=MC[mi],isSel=!!M.sel[meal.id],isOpen=M.open===meal.id;
-    const isLocked=mi>0&&!M.sel[MMEALS[mi-1].id];
-    const cho=isSel?meal.options.find(o=>o.id===M.sel[meal.id]):null;
-    html+=`<div class="meal-card ${isLocked?'locked':''}" style="border-left-color:${isSel?mc:'#505050'};border-color:${isSel?mc+'40':'#2e2e2e'}">
-      <button class="meal-hdr" onclick="toggleMeal('${meal.id}')">
-        <div style="flex:1;text-align:left">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:${isSel?4:0}px">
-            <span style="font-size:11px;color:${mc}">${meal.icon}</span>
-            <span style="font-size:8px;letter-spacing:4px;color:${mc}">${meal.label}</span>
-          </div>
-          ${isSel&&cho?`<div style="font-size:12px;color:#F0F0F0;padding-left:20px">${cho.name}</div>
-          <div class="sel-measure">${cho.measure}</div>`
-          :`<div style="font-size:9px;color:#707070;padding-left:20px">${meal.time}</div>
-          ${meal.tip?`<div style="font-size:8px;color:#8a8a5a;padding-left:20px;margin-top:3px;line-height:1.5">${meal.tip}</div>`:''}`}
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;margin-left:10px">
-          ${isSel&&cho?`<div style="text-align:right"><div style="font-size:11px;color:${mc}">${cho.cal}<span style="font-size:8px;color:#505050">cal</span></div><div style="font-size:8px;color:#707070">${cho.protein}g pro</div></div>`:''}
-          <span style="font-size:18px;color:${isSel?mc:'#707070'};line-height:1">${isSel&&!isOpen?'✓':isOpen?'−':'+'}</span>
-        </div>
-      </button>`;
-    if(isOpen&&!isLocked){
-      html+=`<div class="col-lbl2"><span></span><span>OPTION</span><span style="text-align:center">CAL</span><span style="text-align:center">PRO</span><span style="text-align:center">FAT</span><span style="text-align:center">CRB</span><span style="text-align:center">STATUS</span></div>`;
-      meal.options.forEach(opt=>{
-        const st=mStatus(mi,opt),isCur=M.sel[meal.id]===opt.id,dead=st.code==='over'||st.code==='lp';
-        html+=`<button class="opt-btn" onclick="chooseMeal('${meal.id}','${opt.id}')" ${dead?'disabled':''} style="background:${isCur?mc+'18':dead?'#0a0a0a':'transparent'};opacity:${dead?.4:1}">
-          <div class="opt-grid">
-            <span style="font-size:12px;font-weight:700;color:${isCur?mc:dead?'#505050':'#A8A8A8'}">${opt.id}</span>
-            <span style="font-size:12px;color:${dead?'#555':'#F0F0F0'};line-height:1.3">${opt.name}${isCur?`<span style="color:${mc}"> ✓</span>`:''}</span>
-            <span style="text-align:center;font-size:11px;color:${dead?'#444':'#F0F0F0'}">${opt.cal}</span>
-            <span style="text-align:center;font-size:11px;color:${dead?'#444':'#D4A84A'}">${opt.protein}</span>
-            <span style="text-align:center;font-size:10px;color:${dead?'#333':'#707070'}">${opt.fat}</span>
-            <span style="text-align:center;font-size:10px;color:${dead?'#333':'#707070'}">${opt.carbs}</span>
-            <div style="text-align:center">${badgeH(st)}</div>
-          </div>
-          <div class="measure">📐 ${opt.measure}</div>
-          <div style="padding-left:32px;margin-top:3px;font-size:9px;color:${dead?'#444':'#909090'};line-height:1.5">${opt.prep}</div>
-          ${st.msg?`<div style="padding-left:32px;margin-top:3px;font-size:8px;color:${dead?'#E07070':'#D4A840'}">${dead?'✗':'⚠'} ${st.msg}</div>`:''}
-          ${opt.flag?`<div style="margin:5px 0 0 28px;padding:3px 10px;border-radius:4px;background:#2a1800;font-size:8px;color:#E0A040;border:1px solid #5a3800">⚠ ${opt.flag}</div>`:''}
-        </button>`;
-      });
-    }
-    html+=`</div>`;
-  });
-  if(all){
-    const verdict=t.protein>=PF&&t.cal<=currentMT().cal+80?{msg:'On track — solid cut day',c:'#5ABF6A'}
-      :t.protein<PF?{msg:`Add a shake — ${PF-t.protein}g short`,c:'#D09040'}
-      :{msg:`${t.cal-currentMT().cal}cal over target`,c:'#D46060'};
-    html+=`<div style="margin-top:12px;padding:20px;background:#181818;border:1px solid ${verdict.c}44;border-left:3px solid ${verdict.c};border-radius:10px">
-      <div style="font-size:8px;letter-spacing:5px;color:#A0A0A0;margin-bottom:14px">DAY SUMMARY</div>
-      ${[{l:'Calories',v:t.cal,tg:currentMT().cal,u:''},{l:'Protein',v:t.protein,tg:currentMT().protein,u:'g'},{l:'Fat',v:t.fat,tg:currentMT().fat,u:'g'},{l:'Carbs',v:t.carbs,tg:currentMT().carbs,u:'g'}].map(r=>{
-        const over=r.v>r.tg*1.05,hit=r.l==='Protein'?r.v>=PF:r.v<=r.tg,c=over?'#D46060':hit?'#5ABF6A':'#D09040';
-        return`<div class="summary-row">
-          <span style="font-size:10px;color:#C0C0C0">${r.l}</span>
-          <div><span style="font-size:15px;color:${c}">${r.v}</span><span style="font-size:9px;color:#808080">${r.u} / ${r.tg}${r.u}</span> <span>${over?'⬆':hit?'✓':'⬇'}</span></div>
-        </div>`;
-      }).join('')}
+  <div style="max-width:580px;margin:14px auto 0;padding:0 16px">
+    <div style="padding:20px;background:#181818;border:1px solid ${verdict.c}44;border-left:3px solid ${verdict.c};border-radius:10px">
+      <div style="font-size:8px;letter-spacing:5px;color:#A0A0A0;margin-bottom:14px">TODAY SO FAR</div>
+      <div class="summary-row">
+        <span style="font-size:10px;color:#C0C0C0">Calories</span>
+        <div><span style="font-size:15px;color:${M.cal>mt.cal*1.05?'#D46060':'#5ABF6A'}">${M.cal}</span><span style="font-size:9px;color:#808080"> / ${mt.cal}</span></div>
+      </div>
+      <div class="summary-row">
+        <span style="font-size:10px;color:#C0C0C0">Protein</span>
+        <div><span style="font-size:15px;color:${M.protein>=mt.protein?'#5ABF6A':'#D09040'}">${M.protein}g</span><span style="font-size:9px;color:#808080"> / ${mt.protein}g</span></div>
+      </div>
       <div style="margin-top:14px;padding:10px;border-radius:7px;background:${verdict.c}18;border:1px solid ${verdict.c}44;font-size:11px;color:${verdict.c};text-align:center;letter-spacing:1px">${verdict.msg}</div>
-      <button onclick="resetMeal()" style="margin-top:12px;width:100%;border:1px solid #3a3a3a;border-radius:7px;color:#A0A0A0;padding:11px;font-size:8px;letter-spacing:3px">← PLAN A NEW DAY</button>
-    </div>`;
-  }
-  html+=`</div>`;
+    </div>
+  </div>`;
   document.getElementById('content').innerHTML=html;
 }
 
 /* ── MEAL EVENTS ───────────────────────────────────────── */
-function toggleMeal(id){M.open=M.open===id?null:id;renderMeal();}
-function toggleOil(){M.oil=!M.oil;saveMeal();renderMeal();}
-function chooseMeal(mid,oid){
-  const mi=MMEALS.findIndex(m=>m.id===mid),ns={};
-  MMEALS.slice(0,mi).forEach(m=>{if(M.sel[m.id])ns[m.id]=M.sel[m.id];});
-  ns[mid]=oid;M.sel=ns;
-  const nx=MMEALS[mi+1];M.open=nx?nx.id:null;
+function logMeal(){
+  const c=parseInt(document.getElementById('log-cal').value,10)||0;
+  const p=parseInt(document.getElementById('log-pro').value,10)||0;
+  if(!c&&!p)return;
+  M.cal+=c;M.protein+=p;
   saveMeal();renderMeal();
 }
 function resetMeal(){
-  M.sel={};M.open='b';
-  localStorage.removeItem('trn3_msel');
-  localStorage.removeItem('trn3_mopen');
+  M={date:todayStr(),cal:0,protein:0};
+  saveMeal();
   renderMeal();
 }
 
