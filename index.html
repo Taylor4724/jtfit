@@ -161,7 +161,7 @@ const WDAYS = {
       ]}
     ]}
   ]},
-  D:{label:"FRI",theme:"LOWER B — POSTERIOR",sub:"Glutes · Hamstrings · 2nd quad touch",sections:[
+  D:{label:"FRI",theme:"LOWER B — POSTERIOR",sub:"Glutes · Hamstrings · 2nd quad touch (Goblet Squat)",sections:[
     {title:"WARM-UP",groups:[
       {type:"single",rest:30,exercises:[
         {id:"gb",name:"Bodyweight Glute Bridge (warm-up)",sets:2,repLo:15,repHi:15,weight:0,wtype:"bodyweight",inc:0,note:"Activation — squeeze 1s at top"}
@@ -177,12 +177,7 @@ const WDAYS = {
     ]},
     {title:"QUAD TOUCH",groups:[
       {type:"single",rest:75,exercises:[
-        {id:"wl",name:"Walking Lunge (DB)",sets:4,repLo:12,repHi:12,weight:25,wtype:"dumbbell",inc:2.5,max:50,note:"Per leg — lighter touch, main squat push is Tuesday"}
-      ]}
-    ]},
-    {title:"FINISHER",groups:[
-      {type:"single",rest:45,exercises:[
-        {id:"gk",name:"Cable Glute Kickback",sets:4,repLo:15,repHi:15,weight:20,wtype:"cable",inc:5,max:200,note:"Squeeze at top, no low back arch — last exercise, keep it quick"}
+        {id:"gq",name:"Goblet Squat",sets:4,repLo:12,repHi:15,weight:40,wtype:"dumbbell",inc:2.5,max:50,note:"Per Tuesday's warm-up movement — bilateral and stable, easier on the knees than lunges when fatigued from RDL"}
       ]}
     ]}
   ]},
@@ -274,6 +269,19 @@ function writeWeekState(d,wk,dayEx){
 }
 // Builds and permanently saves a fresh slot for (d,newWeek), cascading weight from
 // whatever was actually saved for (d,oldWeek) — the old week's data is never touched.
+function workingWeight(sets){
+  if(!sets||!sets.length)return 0;
+  const counts={};
+  sets.forEach(s=>{counts[s.weight]=(counts[s.weight]||0)+1;});
+  let best=sets[0].weight,bestCount=0;
+  Object.keys(counts).forEach(k=>{
+    const w=parseFloat(k),c=counts[k];
+    // most sets performed at this weight wins; ties go to the LOWER weight —
+    // a heavy failed top single shouldn't out-vote the weight you actually trained at
+    if(c>bestCount||(c===bestCount&&w<best)){best=w;bestCount=c;}
+  });
+  return best;
+}
 function bumpDayWeek(d,oldWeek,newWeek,deload){
   const base=initDay(d);
   const prevRaw=readWeekState(d,oldWeek);
@@ -287,8 +295,8 @@ function bumpDayWeek(d,oldWeek,newWeek,deload){
       const prevEx=prevRaw&&prevRaw[e.id]&&prevRaw[e.id].sets.length?prevRaw[e.id]:null;
       const peakEx=peakRaw&&peakRaw[e.id]&&peakRaw[e.id].sets.length?peakRaw[e.id]:null;
 
-      // carry forward last known weight for every exercise before applying any bump logic
-      if(prevEx){const carried=prevEx.sets[0].weight;state.sets.forEach(s=>{s.weight=carried;});}
+      // carry forward the real working weight for every exercise before applying any bump logic
+      if(prevEx){const carried=workingWeight(prevEx.sets);state.sets.forEach(s=>{s.weight=carried;});}
 
       const target=weekTarget(newWeek,e.sets);
       while(state.sets.length<target){const last=state.sets[state.sets.length-1];state.sets.push({weight:last.weight,reps:e.repHi,done:false});}
@@ -296,18 +304,19 @@ function bumpDayWeek(d,oldWeek,newWeek,deload){
 
       if(isPrimary&&e.wtype!=='bodyweight'&&prevEx){
         const prevSets=prevEx.sets;
-        const prevCur=prevSets[0].weight;
+        const prevCur=workingWeight(prevSets);
+        const workingSets=prevSets.filter(s=>s.weight===prevCur);
         const volume=prevSets.reduce((s,x)=>s+x.weight*x.reps,0);
-        const maxReps=Math.max(...prevSets.map(x=>x.reps));
-        const hitAll=prevSets.every(s=>s.reps>=e.repHi);
+        const maxReps=Math.max(...workingSets.map(x=>x.reps));
+        const hitAll=workingSets.length>0&&workingSets.every(s=>s.reps>=e.repHi);
 
         recordHistory(e.id,{week:oldWeek,weight:prevCur,reps:maxReps,volume});
 
         let nw;
         if(cyclingFromDeload){
-          // New cycle: restart from the pre-deload peak, not the reduced deload weight —
+          // New cycle: restart from the pre-deload peak's real working weight, not the reduced deload weight —
           // progress carries forward instead of resetting to the original baseline.
-          nw=peakEx?peakEx.sets[0].weight:prevCur;
+          nw=peakEx?workingWeight(peakEx.sets):prevCur;
           events.push({name:e.name,type:'cycle',detail:'new cycle started at '+nw+'lb — carried from last cycle peak'});
         }else if(deload)nw=Math.round(prevCur*0.6/e.inc)*e.inc;
         else if(hitAll)nw=Math.round((prevCur+e.inc)*100)/100;
@@ -374,7 +383,7 @@ function loadSaved(){
     const wday=localStorage.getItem('trn3_wday');
     if(wday&&WDAYS[wday])W.day=wday;
     const wk=localStorage.getItem('trn3_week');
-    if(wk)W.week=Math.max(1,Math.min(6,parseInt(wk,10)||1));
+    if(wk)W.week=Math.max(1,parseInt(wk,10)||1);
     W.ex=initDay(W.day);
     const wex=localStorage.getItem(wexKey(W.day,W.week));
     if(wex){
@@ -461,7 +470,7 @@ function checkLivePR(id){
   if(!allDone)return;
 
   const volume=state.sets.reduce((s,x)=>s+x.weight*x.reps,0);
-  const curWeight=state.sets[0].weight;
+  const curWeight=workingWeight(state.sets);
   const immediatePrev=getHistory(id).find(h=>h.week===W.week-1);
 
   if(!immediatePrev){
