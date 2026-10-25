@@ -171,7 +171,10 @@ function workingWeight(sets){
 let SETUP=sget('setup',null);
 let LIFT=sget('lift',{});
 let ROTI=sget('rot',0);
-let CUR=sget('cur',null);
+let CURS=sget('curs',null);
+if(!CURS){CURS={};const old=sget('cur',null);if(old&&old.day&&old.ex)CURS[old.day]=old;}
+let CURDAY=sget('curday',null);
+let CUR=null;
 let SESS=sget('sessions',[]);
 let LASTSUM=sget('lastsum',null);
 let GAPSEEN=sget('gapseen','');
@@ -199,11 +202,17 @@ function buildSession(d){
   return s;
 }
 function sessionHasDone(s){return !!s&&Object.keys(s.ex).some(id=>s.ex[id].sets.some(x=>x.done));}
+function persistCur(){sset('curs',CURS);sset('curday',CURDAY);}
 function ensureCur(){
-  if(!CUR||!DAYS[CUR.day]){CUR=buildSession(ROT[ROTI]);}
-  sset('cur',CUR);
+  if(!CURDAY||!DAYS[CURDAY])CURDAY=ROT[ROTI];
+  if(!CURS[CURDAY]||CURS[CURDAY].day!==CURDAY)CURS[CURDAY]=buildSession(CURDAY);
+  CUR=CURS[CURDAY];
+  persistCur();
 }
-function rebuildIfUntouched(){if(!sessionHasDone(CUR)){CUR=buildSession(CUR&&DAYS[CUR.day]?CUR.day:ROT[ROTI]);sset('cur',CUR);}}
+function rebuildIfUntouched(){
+  Object.keys(CURS).forEach(d=>{if(!sessionHasDone(CURS[d]))delete CURS[d];});
+  ensureCur();
+}
 
 function progressLift(id,sets){
   const ex=getEx(id),L=getLift(id);
@@ -255,8 +264,9 @@ function finishWorkout(){
   if(SESS.length>400)SESS=SESS.slice(-400);
   ROTI=(ROT.indexOf(d)+1)%ROT.length;
   LASTSUM={day:d,date:todayStr(),items:items,sets:setsDone};
-  CUR=null;
-  saveAll();sset('cur',null);
+  delete CURS[d];
+  CURDAY=ROT[ROTI];
+  saveAll();
   ensureCur();
   SHOWSUM=true;
   flashSaved();renderTraining();window.scrollTo(0,0);
@@ -310,7 +320,7 @@ function flashSaved(){
   const b=document.getElementById('saved-badge');if(!b)return;
   b.style.opacity='1';clearTimeout(FT);FT=setTimeout(()=>{b.style.opacity='0';},1100);
 }
-function saveCur(){sset('cur',CUR);flashSaved();}
+function saveCur(){persistCur();flashSaved();}
 
 /* ── TIMER ─────────────────────────────────────────────────── */
 let TI=null,TM=null;
@@ -465,7 +475,7 @@ function saveSetup(){
   SETUP={weights:weights,date:todayStr()};
   sset('setup',SETUP);saveAll();
   SHOWSETUP=false;
-  CUR=null;ensureCur();
+  CURS={};CURDAY=ROT[ROTI];ensureCur();
   renderTraining();window.scrollTo(0,0);
 }
 function renderTraining(){
@@ -553,13 +563,12 @@ function remSet(id){
   sets.pop();saveCur();renderTraining();
 }
 function switchDay(d){
-  if(CUR&&CUR.day===d)return;
-  if(sessionHasDone(CUR)&&!confirm('Switch days? Sets you checked in the current workout will be discarded.'))return;
-  CUR=buildSession(d);sset('cur',CUR);renderTraining();window.scrollTo(0,0);
+  if(CURDAY===d)return;
+  CURDAY=d;ensureCur();renderTraining();window.scrollTo(0,0);
 }
 function resetDay(){
   if(!confirm('Clear the checkmarks and reload this workout\'s planned weights and reps?'))return;
-  CUR=buildSession(CUR.day);sset('cur',CUR);renderTraining();
+  CURS[CURDAY]=buildSession(CURDAY);ensureCur();renderTraining();
 }
 
 /* ── BACKUP ────────────────────────────────────────────────── */
@@ -587,11 +596,11 @@ function importBackup(){
 const BASE_TARGET={cal:2950,pro:195};
 const PLAN=[
   {id:'b',name:'Breakfast',desc:'3 eggs + ½ cup egg whites + English muffin + 1 oz cheddar + banana',cal:630,pro:45},
-  {id:'l',name:'Lunch (prep)',desc:'10 oz raw ground chicken + 8 oz cooked rice + 1 tbsp olive oil',cal:800,pro:54},
+  {id:'l',name:'Lunch (prep)',desc:'7.5 oz cooked ground chicken (10 oz raw) + 8 oz cooked rice + 1 tbsp olive oil',cal:800,pro:54},
   {id:'y',name:'Protein yogurt',desc:'1 cup protein yogurt',cal:150,pro:15},
-  {id:'d',name:'Dinner (prep)',desc:'8 oz raw 90/10 beef + 12 oz sweet potato + 1.5 cups green beans',cal:740,pro:53},
+  {id:'d',name:'Dinner (prep)',desc:'6 oz cooked 90/10 beef (8 oz raw) + 12 oz sweet potato + 1.5 cups green beans',cal:740,pro:53},
   {id:'p',name:'Protein bar',desc:'Your usual bar',cal:200,pro:18},
-  {id:'s',name:'Evening snack',desc:'3 tbsp peanut butter on rice cakes',cal:430,pro:10}
+  {id:'s',name:'Evening snack',desc:'2 English muffins + 4 tbsp PBfit + 1 sliced banana',cal:470,pro:21}
 ];
 let NUT=sget('nut',{}),WT=sget('wt',{}),WAIST=sget('waist',{}),ADJ=sget('adj',{kcal:0,date:null});
 let NTAB_OPEN=false;
