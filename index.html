@@ -92,6 +92,10 @@ button{font-family:inherit;-webkit-appearance:none;touch-action:manipulation;cur
     <div style="font-size:20px;margin-bottom:2px">☰</div>
     <div style="font-size:8px;letter-spacing:2px">GROCERY</div>
   </button>
+  <button onclick="switchTab('status')" id="ts">
+    <div style="font-size:20px;margin-bottom:2px">◎</div>
+    <div style="font-size:8px;letter-spacing:2px">STATUS</div>
+  </button>
 </div>
 
 <script>
@@ -515,10 +519,10 @@ function reportText(){
     L.push('- '+x.e.name+' ('+DAYS[x.d].name+'): '+(bw?'BW':f.w+'lb')+'×'+f.reps.join(',')+' → '+(bw?'BW':e.w+'lb')+'×'+e.reps.join(',')+' · '+l.hist.length+' done, '+(l.skips||0)+' skipped');
   });
   L.push('');
-  const ws=weightStats(WT,ADJ,t),wa=waistStats(WAIST,t,ws.rate);
+  const ws=weightStats(WT,ADJ,t),wa=waistStats(MID,t,ws.rate);
   if(ws.state==='ok'&&ws.avg!=null)L.push('Weight: 7-day avg '+r1(ws.avg)+' lb'+(ws.rate!=null?' · '+(ws.rate>=0?'+':'')+r2(ws.rate)+' lb/week':'')+' · '+ws.status);
   else L.push('Weight: not enough weigh-ins yet');
-  if(wa.state==='ok')L.push('Waist: '+wa.value+' in ('+wa.last+')'+(wa.perMonth!=null?' · '+(wa.perMonth>=0?'+':'')+r2(wa.perMonth)+' in/month':''));
+  if(wa.state==='ok')L.push('Midsection check: '+wa.label+' ('+wa.last+')'+(wa.n>=2?' · last '+wa.n+' checks net '+(wa.net>0?'+':'')+wa.net+' (positive = softer)':''));
   L.push('Calorie target: '+(BASE_TARGET.cal+ADJ.kcal)+' kcal'+(ADJ.kcal?' (adjusted '+(ADJ.kcal>0?'+':'')+ADJ.kcal+')':''));
   return L.join('\n');
 }
@@ -702,7 +706,7 @@ const PLAN=[
   {id:'p',name:'Protein bar',desc:'Your usual bar',cal:200,pro:18},
   {id:'s',name:'Evening snack',desc:'2 English muffins + 4 tbsp PBfit + 1 sliced banana',cal:470,pro:21}
 ];
-let NUT=sget('nut',{}),WT=sget('wt',{}),WAIST=sget('waist',{}),ADJ=sget('adj',{kcal:0,date:null});
+let NUT=sget('nut',{}),WT=sget('wt',{}),MID=sget('mid',{}),ADJ=sget('adj',{kcal:0,date:null});
 let NTAB_OPEN=false;
 function nDay(d){if(!NUT[d])NUT[d]={c:{},x:[]};return NUT[d];}
 function planItems(){
@@ -731,11 +735,11 @@ function delExtra(i){nDay(todayStr()).x.splice(i,1);sset('nut',NUT);renderNutrit
 function saveMetric(kind){
   const v=parseFloat(document.getElementById(kind+'-v').value),dt=document.getElementById(kind+'-d').value||todayStr();
   if(isNaN(v)||v<=0){alert('Enter a number.');return;}
-  if(kind==='wt'){WT[dt]=r1(v);sset('wt',WT);}else{WAIST[dt]=r1(v);sset('waist',WAIST);}
+  WT[dt]=r1(v);sset('wt',WT);
   flashSaved();renderNutrition();
 }
 function delMetric(kind,dt){
-  if(kind==='wt'){delete WT[dt];sset('wt',WT);}else{delete WAIST[dt];sset('waist',WAIST);}
+  delete WT[dt];sset('wt',WT);
   renderNutrition();
 }
 function applyAdj(delta){
@@ -767,18 +771,28 @@ function weightStats(wt,adj,today){
   if(rvalid(0)&&rvalid(1)&&rate(0)>1&&rate(1)>1)out.suggest={delta:-175,why:'Over 1 lb/week for 2 weeks in a row.'};
   return out;
 }
-function waistStats(waist,today,rate){
-  const dates=Object.keys(waist).sort();
+const MIDL={'-2':'Much leaner','-1':'Leaner','0':'About the same','1':'Softer','2':'Much softer'};
+function waistStats(mid,today,rate){
+  const dates=Object.keys(mid).sort();
   if(!dates.length)return{state:'none'};
-  const last=dates[dates.length-1],lv=waist[last];
-  const out={state:'ok',last:last,value:lv,due:dayDiff(today,last)>=7,perMonth:null,trim:false};
-  const olds=dates.filter(d=>dayDiff(last,d)>=21);
-  if(olds.length){
-    const o=olds[olds.length-1],days=dayDiff(last,o);
-    out.perMonth=(lv-waist[o])/(days/30.44);
-    if(out.perMonth>0.5&&rate!=null&&rate>=0.25)out.trim=true;
-  }
-  return out;
+  const last=dates[dates.length-1];
+  const recent=dates.filter(d=>dayDiff(today,d)<=35);
+  const net=recent.reduce((a,d)=>a+mid[d],0);
+  return{state:'ok',last:last,label:MIDL[String(mid[last])],due:dayDiff(today,last)>=7,n:recent.length,net:net,
+    trim:recent.length>=3&&net>=2&&rate!=null&&rate>=0.25,
+    lean:recent.length>=2&&net<=0};
+}
+function saveMid(score){MID[todayStr()]=score;sset('mid',MID);flashSaved();renderNutrition();}
+function delMid(d){delete MID[d];sset('mid',MID);renderNutrition();}
+function midCard(){
+  const t=todayStr(),keys=Object.keys(MID).sort().reverse().slice(0,5),cur=MID[t];
+  const opts=[[-2,'Much leaner'],[-1,'Leaner'],[0,'Same'],[1,'Softer'],[2,'Much softer']];
+  return `<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:9px;letter-spacing:2px;color:#888">MIDSECTION CHECK · WEEKLY</span><span style="font-size:10px;color:${cur!=null?'#5ABF6A':'#777'}">${cur!=null?MIDL[String(cur)]+' today':'not logged today'}</span></div>
+    <div style="font-size:9px;color:#888;line-height:1.5;margin-bottom:8px">Compared to a week ago, how does your midsection look and feel? Use the mirror, how your pants or belt fit, and how bloated you feel. Once a week, same time of day.</div>
+    <div style="display:flex;gap:5px">${opts.map(o=>`<button onclick="saveMid(${o[0]})" style="flex:1;border:1px solid ${cur===o[0]?'#D4A84A':'#3a3a3a'};background:${cur===o[0]?'rgba(212,168,74,.15)':'transparent'};color:${cur===o[0]?'#D4A84A':'#aaa'};border-radius:7px;padding:10px 2px;font-size:8px;letter-spacing:.5px;line-height:1.3">${o[1]}</button>`).join('')}</div>
+    ${keys.length?`<div style="margin-top:8px;font-size:9px;color:#888;line-height:1.9">${keys.map(k=>`${k}: <span style="color:#ddd">${MIDL[String(MID[k])]}</span> <button onclick="delMid('${k}')" style="color:#666;padding:0 6px">✕</button>`).join('<br>')}</div>`:''}
+  </div>`;
 }
 function sparkSVG(){
   const t=todayStr(),pts=[];
@@ -798,7 +812,7 @@ function sparkSVG(){
     <div style="font-size:8px;color:#666;margin-top:3px">Grey dots = daily weigh-ins · gold line = 7-day average · last 4 weeks</div>`;
 }
 function verdictHTML(ws,wa){
-  if(ws.state==='none')return `<div class="note info">Weigh in each morning (after the bathroom, before eating) and measure your waist at the navel once a week. After the first couple of weeks this tells you whether the gain is lean.</div>`;
+  if(ws.state==='none')return `<div class="note info">Weigh in each morning (after the bathroom, before eating) and do a quick midsection check once a week. After the first couple of weeks this tells you whether the gain is lean.</div>`;
   const parts=[];
   const rateTxt=ws.rate!=null?`${ws.rate>=0?'+':''}${r2(ws.rate)} lb/week`:'—';
   const col=ws.status==='ON PACE'?'#5ABF6A':ws.status==='SLOW'||ws.status==='BUILDING BASELINE'||ws.status.indexOf('NEED')===0?'#D4A84A':'#D46060';
@@ -806,16 +820,15 @@ function verdictHTML(ws,wa){
     <div style="font-size:10px;color:#ccc;margin-top:6px;line-height:1.6">7-day avg: <b>${ws.avg!=null?r1(ws.avg)+' lb':'—'}</b> · previous week: ${ws.prev!=null?r1(ws.prev)+' lb':'—'} · rate: <b>${rateTxt}</b><br><span style="color:#777">Lean target is about +0.5 lb/week (0.25 – 0.75).</span></div>`);
   if(ws.settling)parts.push(`<div style="font-size:9px;color:#D4A84A;margin-top:6px">First 2 weeks: scale jumps are mostly water and food volume. No calorie changes yet.</div>`);
   if(wa.state==='ok'){
-    const pm=wa.perMonth;
-    parts.push(`<div style="font-size:10px;color:#ccc;margin-top:8px">Waist: <b>${wa.value} in</b> (${wa.last})${pm!=null?` · ${pm>=0?'+':''}${r2(pm)} in/month`:' · need a reading 3+ weeks older to see a trend'}</div>`);
+    parts.push(`<div style="font-size:10px;color:#ccc;margin-top:8px">Midsection: <b>${wa.label}</b> (${wa.last})${wa.n>=3?` · last ${wa.n} checks net ${wa.net>0?'+':''}${wa.net} (positive = softer)`:' · need about 3 weekly checks to see a trend'}</div>`);
   }
   let sug=ws.suggest;
-  if(!sug&&wa.state==='ok'&&wa.trim)sug={delta:-150,why:'Waist is growing faster than 0.5 in/month while the scale is on pace or above. Likely extra fat.'};
+  if(!sug&&wa.state==='ok'&&wa.trim)sug={delta:-150,why:'Your midsection checks keep coming back softer while the scale is on pace or above. Likely extra fat.'};
   if(sug){
     parts.push(`<div class="note warn" style="margin-top:8px">${sug.why} Suggest ${sug.delta>0?'adding':'trimming'} about ${Math.abs(sug.delta)} kcal/day.
       <div style="margin-top:8px"><button class="mini" onclick="applyAdj(${sug.delta})">${sug.delta>0?'ADD':'TRIM'} ${Math.abs(sug.delta)} KCAL</button></div></div>`);
-  }else if(ws.status==='ON PACE'&&wa.state==='ok'&&(wa.perMonth==null||wa.perMonth<=0.5)&&!ws.settling){
-    parts.push(`<div style="font-size:10px;color:#5ABF6A;margin-top:8px">✓ Rate on pace and waist under control — this looks like lean gain. Keep going.</div>`);
+  }else if(ws.status==='ON PACE'&&wa.state==='ok'&&wa.lean&&!ws.settling){
+    parts.push(`<div style="font-size:10px;color:#5ABF6A;margin-top:8px">✓ Rate on pace and your midsection is not getting softer — this looks like lean gain. Keep going.</div>`);
   }
   return `<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:12px 14px;margin-bottom:12px">${parts.join('')}</div>`;
 }
@@ -836,7 +849,7 @@ function renderNutrition(){
   const keep={};
   document.querySelectorAll('#content input').forEach(e=>{if(e.id)keep[e.id]=e.value;});
   const t=todayStr(),n=nDay(t),T=nutTotals(t),it=planItems();
-  const ws=weightStats(WT,ADJ,t),wa=waistStats(WAIST,t,ws.rate);
+  const ws=weightStats(WT,ADJ,t),wa=waistStats(MID,t,ws.rate);
   const diff=T.planCal-T.tCal;
   let html=`<div class="sticky"><div class="inner">
     <div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:10px">NUTRITION · V4 · ${t}</div>
@@ -860,10 +873,10 @@ function renderNutrition(){
     <div style="font-size:9px;letter-spacing:2px;color:#888;margin-bottom:8px">ADD A MEAL OR SNACK OFF THE PLAN</div>
     <div style="display:flex;gap:6px"><input id="x-name" placeholder="What" class="inp" style="flex:2"><input id="x-cal" type="number" inputmode="numeric" placeholder="kcal" class="inp" style="flex:1"><input id="x-pro" type="number" inputmode="numeric" placeholder="g pro" class="inp" style="flex:1"><button class="mini" onclick="addExtra()" style="padding:0 14px">ADD</button></div></div>`;
   html+=`<div class="section-lbl" style="margin-top:20px">BODY TREND</div>`;
-  html+=verdictHTML(ws,wa)+metricCard('wt','MORNING WEIGHT','lb',WT,'lb')+sparkSVG()+`<div style="height:12px"></div>`+metricCard('waist','WAIST AT NAVEL · WEEKLY','in',WAIST,'inches')+
-    (wa.state==='none'||wa.due?`<div class="note info">Waist check due. Same spot every time (navel), relaxed, once a week.</div>`:'');
+  html+=verdictHTML(ws,wa)+metricCard('wt','MORNING WEIGHT','lb',WT,'lb')+sparkSVG()+`<div style="height:12px"></div>`+midCard()+
+    (wa.state==='none'||wa.due?`<div class="note info">Midsection check is due. Tap one of the five buttons above.</div>`:'');
   if(ADJ.kcal)html+=`<div style="text-align:center;margin:10px 0"><button class="mini" onclick="if(confirm('Remove the ${ADJ.kcal>0?'+':''}${ADJ.kcal} kcal adjustment?')){ADJ={kcal:0,date:todayStr()};sset('adj',ADJ);renderNutrition();}">REMOVE ${ADJ.kcal>0?'+':''}${ADJ.kcal} KCAL ADJUSTMENT</button></div>`;
-  html+=`<div style="font-size:9px;color:#666;line-height:1.6;margin:16px 0 24px">Rules: lean gain ≈ 0.5 lb/week. Under 0.25 lb/week for 3 weeks → +150–200 kcal. Over 1 lb/week for 2 weeks → −150–200 kcal. First 2 weeks ignored. Waist growing over 0.5 in/month while the scale is on pace → trim. Food numbers are estimates — tweak PLAN in the code or tell me and I'll update it.</div></div>`;
+  html+=`<div style="font-size:9px;color:#666;line-height:1.6;margin:16px 0 24px">Rules: lean gain ≈ 0.5 lb/week. Under 0.25 lb/week for 3 weeks → +150–200 kcal. Over 1 lb/week for 2 weeks → −150–200 kcal. First 2 weeks ignored. Midsection checks coming back softer while the scale is on pace → trim. Food numbers are estimates — tweak PLAN in the code or tell me and I'll update it.</div></div>`;
   document.getElementById('content').innerHTML=html;
   Object.keys(keep).forEach(id=>{const e=document.getElementById(id);if(e&&e.type!=='date')e.value=keep[id];});
 }
@@ -939,20 +952,199 @@ function renderGrocery(){
   document.getElementById('content').innerHTML=html;
 }
 
+/* ═══ STATUS: rules-based read of everything you have logged ═══ */
+const MUSCLES=[
+ {k:'Upper chest',ids:['ip','lf','di'],pri:true},
+ {k:'Lateral delts',ids:['dl','cl'],pri:true},
+ {k:'Glutes',ids:['ht','ht2'],pri:true},
+ {k:'Quads',ids:['gs','bs','gq'],pri:true},
+ {k:'Back',ids:['wp','br','pd'],pri:false},
+ {k:'Hamstrings',ids:['rl','lc'],pri:false}
+];
+function analyze(){
+  const t=todayStr(),A={t:t,pri:[]};
+  const add=(lvl,txt)=>A.pri.push({lvl:lvl,txt:txt});
+  // ---- training ----
+  const s28=SESS.filter(x=>x.d>addDays(t,-28));
+  const first=SESS.length?SESS[0].d:null;
+  const span=first?Math.min(28,dayDiff(t,first)+1):0;
+  const weeks=Math.max(1,span/7);
+  A.tr={n:s28.length,total:SESS.length,perWeek:s28.length/weeks,span:span};
+  A.mu=MUSCLES.map(m=>{
+    let sets=0;
+    s28.forEach(x=>m.ids.forEach(id=>{const e=x.ex&&x.ex[id];if(e&&!e.sk)sets+=(e.s||[]).filter(q=>q[2]===1).length;}));
+    const planned=m.ids.reduce((n,id)=>n+(getEx(id)?getEx(id).sets:0),0);
+    return {k:m.k,pri:m.pri,perWeek:sets/weeks,ids:m.ids,planned:planned};
+  });
+  const opp={},skp={};
+  s28.forEach(x=>Object.keys(x.ex||{}).forEach(id=>{opp[id]=(opp[id]||0)+1;if(x.ex[id].sk)skp[id]=(skp[id]||0)+1;}));
+  A.skips=Object.keys(skp).map(id=>({id:id,name:getEx(id)?getEx(id).name:id,n:skp[id],of:opp[id]})).sort((a,b)=>b.n-a.n);
+  A.lifts=[];
+  allEx().filter(x=>isProg(x.e)).forEach(x=>{
+    const L=LIFT[x.e.id];if(!L||L.hist.length<2)return;
+    const h=L.hist,f=h[0],l=h[h.length-1],bw=x.e.type==='bodyweight';
+    const e1=(w,r)=>{const m=Math.max.apply(null,r);return bw?m:w*(1+m/30);};
+    const a=e1(f.w,f.reps),b=e1(l.w,l.reps);
+    A.lifts.push({id:x.e.id,name:x.e.name,pct:a?(b-a)/a*100:0,n:h.length,stall:L.stall||0,deload:!!L.deload});
+  });
+  // ---- nutrition ----
+  const nd=Object.keys(NUT).filter(d=>d<t&&d>=addDays(t,-14)).filter(d=>{const n=NUT[d];return Object.keys(n.c||{}).length||(n.x||[]).length;});
+  A.nu={days:nd.length,avgCal:null,avgPro:null,proHit:null,worst:null,target:BASE_TARGET.cal+ADJ.kcal,tPro:BASE_TARGET.pro};
+  if(nd.length){
+    let c=0,p=0,hit=0;const miss={};
+    nd.forEach(d=>{
+      const T=nutTotals(d);c+=T.cal;p+=T.pro;if(T.pro>=0.9*T.tPro)hit++;
+      planItems().forEach(i=>{if(!NUT[d].c[i.id])miss[i.id]=(miss[i.id]||0)+1;});
+    });
+    A.nu.avgCal=c/nd.length;A.nu.avgPro=p/nd.length;A.nu.proHit=hit/nd.length;
+    const ids=Object.keys(miss).sort((a,b)=>miss[b]-miss[a]);
+    if(ids.length){const it=planItems().find(i=>i.id===ids[0]);A.nu.worst={name:it?it.name:ids[0],n:miss[ids[0]]};}
+  }
+  // ---- body ----
+  A.ws=weightStats(WT,ADJ,t);A.wa=waistStats(MID,t,A.ws.rate);
+  A.wIn=Object.keys(WT).filter(d=>d>addDays(t,-14)).length;
+  // ---- priorities (cross-reading) ----
+  const thin=A.tr.total<3&&A.wIn<4&&A.nu.days<3;
+  if(thin){add('info','Not much data yet. Finish a few workouts, weigh in each morning and check off meals for a week or two. The read gets useful after that.');}
+  // training frequency
+  if(A.tr.total>=3){
+    if(A.tr.perWeek<2.5)add('high','Training only about '+r1(A.tr.perWeek)+' days a week. Your plan is 4. Frequency is the biggest lever here, so protect those four days first.');
+    else if(A.tr.perWeek<3.5)add('med','Averaging '+r1(A.tr.perWeek)+' sessions a week, a bit under the 4 you planned.');
+    else add('good','Training consistency is good: about '+r1(A.tr.perWeek)+' sessions a week.');
+  }
+  // priority muscles
+  if(A.tr.total>=4){
+    A.mu.forEach(m=>{
+      if(m.perWeek<m.planned*0.7)add(m.pri?'high':'med',m.k+(m.pri?' is a priority but you are' : ': you are')+' doing about '+r1(m.perWeek)+' hard sets a week against '+m.planned+' planned. Check whether you are skipping or cutting its exercises.');
+    });
+    A.mu.forEach(m=>{
+      if(!m.pri||m.planned>=10||m.perWeek<m.planned*0.85)return;
+      const ls=A.lifts.filter(l=>m.ids.indexOf(l.id)>=0);
+      if(ls.length&&ls.every(l=>l.pct<=2&&l.n>=4))add('med',m.k+' progress has flattened and the plan only has '+m.planned+' sets a week for it. If recovery is good, add 1 set to one of its lifts, on purpose.');
+    });
+  }
+  // skipped
+  A.skips.forEach(k=>{
+    if(k.n>=2&&k.n/k.of>=0.4){
+      const pri=MUSCLES.some(m=>m.pri&&m.ids.indexOf(k.id)>=0);
+      add(pri?'high':'med','You skipped '+k.name+' in '+k.n+' of '+k.of+' sessions.'+(pri?' It feeds a priority muscle.':''));
+    }
+  });
+  // nutrition vs weight
+  const rate=A.ws.rate,sg=A.ws.suggest;
+  if(A.nu.days>=4&&A.nu.avgCal!=null){
+    const ratio=A.nu.avgCal/A.nu.target;
+    if(ratio<0.93)add('high','You are averaging about '+Math.round(A.nu.avgCal)+' kcal on days you log, below your '+A.nu.target+' target. Eat the plan before you change the plan.');
+    else if(ratio>1.08)add('med','Averaging about '+Math.round(A.nu.avgCal)+' kcal, above target. Fine if the scale is on pace, otherwise pull back.');
+    else add('good','Calories are close to target (about '+Math.round(A.nu.avgCal)+').');
+    if(A.nu.proHit!=null){
+      if(A.nu.proHit<0.7)add('high','You hit protein on only '+Math.round(A.nu.proHit*100)+'% of logged days. Protein drives your muscle gain, so fix this first.');
+      else add('good','Protein is on target '+Math.round(A.nu.proHit*100)+'% of logged days.');
+    }
+    if(A.nu.worst&&A.nu.worst.n>=3)add('med','Most often skipped meal: '+A.nu.worst.name+' ('+A.nu.worst.n+' of '+A.nu.days+' logged days).');
+  }
+  if(A.nu.days<4&&A.tr.total>=3)add('med','You have logged meals on only '+A.nu.days+' of the last 14 days. The calorie read is unreliable until you log more.');
+  if(rate!=null){
+    if(A.ws.status==='SLOW'&&A.nu.avgCal!=null&&A.nu.avgCal<A.nu.target*0.95)add('high','The scale is slow because you are under-eating, not because the plan is too low. Hit the target before adding calories.');
+    else if(sg&&sg.delta>0)add('high','Weight gain has been slow for weeks while eating near target. '+sg.why+' Add about 175 kcal a day.');
+    else if(A.ws.status==='SLOW'&&!A.ws.settling)add('med','Gaining a bit slowly ('+r2(rate)+' lb/week). Not a problem yet; the rule only adds calories after 3 slow weeks.');
+    else if(A.ws.status==='ON PACE')add('good','Weight is gaining at '+(rate>=0?'+':'')+r2(rate)+' lb/week, right in the lean range.');
+    else if(A.ws.status==='TOO FAST'||A.ws.status==='A BIT FAST')add('med','Gaining '+r2(rate)+' lb/week, faster than the 0.25–0.75 lean range. Watch your midsection checks.');
+    if(sg&&sg.delta<0)add('high','Gaining fast for weeks. '+sg.why+' Trim about 175 kcal a day.');
+  }else if(A.wIn<4)add('med','Weigh in each morning. You have '+A.wIn+' weigh-ins in the last 14 days, and the trend needs about 3 a week.');
+  if(A.wa.state==='ok'&&A.wa.trim)add('high','Your midsection checks keep coming back softer while the scale is on pace or above. That points to extra fat. Trim about 150 kcal a day.');
+  else if(A.wa.state==='none'||A.wa.due)add('med','Weekly midsection check is due.');
+  else if(A.wa.lean&&A.wa.n>=3)add('good','Midsection is holding up: not getting softer over the last '+A.wa.n+' checks.');
+  // lifts
+  const up=A.lifts.filter(l=>l.pct>=3),down=A.lifts.filter(l=>l.pct<=-3),stalled=A.lifts.filter(l=>l.stall>=2||l.deload);
+  A.up=up;A.down=down;A.stalled=stalled;
+  if(up.length&&A.lifts.length>=3)add('good',up.length+' of '+A.lifts.length+' lifts are stronger than when you started tracking.');
+  if(stalled.length){
+    const low=A.nu.avgCal!=null&&A.nu.avgCal<A.nu.target*0.95;
+    add('med',stalled.map(l=>l.name).slice(0,3).join(', ')+(stalled.length>3?' and more':'')+' have stalled for 2+ sessions.'+(low?' Under-eating makes this worse.':' Check sleep and recovery, or take the suggested deload.'));
+  }
+  if(down.length)add('med',down.map(l=>l.name).slice(0,3).join(', ')+' are down from where they started.');
+  const hi=A.pri.filter(p=>p.lvl==='high').length,med=A.pri.filter(p=>p.lvl==='med').length;
+  A.verdict=thin?'BUILDING DATA':hi>=3?'NEEDS ATTENTION':hi>=1?'MOSTLY ON TRACK, FIX '+hi:med>=3?'ON TRACK, TIGHTEN UP':'ON TRACK';
+  A.vcol=thin?'#5A9AC8':hi>=3?'#D46060':hi>=1?'#D4A84A':'#5ABF6A';
+  const order={high:0,med:1,good:2,info:3};
+  A.pri.sort((a,b)=>order[a.lvl]-order[b.lvl]);
+  return A;
+}
+function statRow(l,v,c){return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #222;font-size:10px"><span style="color:#999">'+l+'</span><span style="color:'+(c||'#eee')+';text-align:right">'+v+'</span></div>';}
+function statCard(title,rows){return '<div style="background:#161616;border:1px solid #2e2e2e;border-radius:10px;padding:12px 14px;margin-bottom:12px"><div style="font-size:9px;letter-spacing:2px;color:#888;margin-bottom:6px">'+title+'</div>'+rows+'</div>';}
+function renderStatus(){
+  const A=analyze();
+  const lvlc={high:'#D46060',med:'#D4A84A',good:'#5ABF6A',info:'#5A9AC8'},lvll={high:'FIX',med:'WATCH',good:'GOOD',info:'NOTE'};
+  let html='<div class="sticky"><div class="inner"><div style="font-size:8px;letter-spacing:5px;color:#888;margin-bottom:10px">STATUS · V4 · '+A.t+'</div>'+
+    '<div style="font-size:15px;color:'+A.vcol+';letter-spacing:2px;font-weight:700">'+A.verdict+'</div>'+
+    '<div style="font-size:9px;color:#888;margin-top:4px;line-height:1.5">A rules-based read of what you have logged. It is not a coach or a doctor.</div></div></div>'+
+    '<div style="max-width:560px;margin:14px auto 0;padding:0 16px">';
+  html+='<div class="section-lbl">WHAT TO DO NEXT</div>';
+  html+=A.pri.map(p=>'<div style="display:flex;gap:10px;align-items:flex-start;background:#161616;border:1px solid #2a2a2a;border-left:3px solid '+lvlc[p.lvl]+';border-radius:8px;padding:10px 12px;margin-bottom:7px"><span style="font-size:8px;letter-spacing:1px;color:'+lvlc[p.lvl]+';min-width:38px;padding-top:2px">'+lvll[p.lvl]+'</span><span style="font-size:11px;color:#ddd;line-height:1.5">'+p.txt+'</span></div>').join('')||'<div class="note info">Nothing to flag yet.</div>';
+  // training
+  let tr=statRow('Sessions logged (all time)',A.tr.total)+statRow('Last 4 weeks',A.tr.n+' · '+r1(A.tr.perWeek)+' / week',A.tr.perWeek>=3.5?'#5ABF6A':A.tr.perWeek>=2.5?'#D4A84A':'#D46060');
+  A.mu.forEach(m=>{
+    const c=m.perWeek<m.planned*0.7?'#D46060':m.perWeek<m.planned*0.85?'#D4A84A':'#5ABF6A';
+    tr+=statRow(m.k+(m.pri?' ★':'')+' · sets/week',r1(m.perWeek)+' (plan '+m.planned+')',A.tr.total>=4?c:'#888');
+  });
+  html+=statCard('TRAINING',tr);
+  // lifts
+  let lf='';
+  if(A.lifts.length){
+    lf=A.lifts.slice().sort((a,b)=>b.pct-a.pct).map(l=>statRow(l.name,(l.pct>=0?'+':'')+Math.round(l.pct)+'% · '+l.n+' sessions'+(l.deload?' · deload':l.stall>=2?' · stalled':''),l.pct>=3?'#5ABF6A':l.pct<=-3?'#D46060':'#999')).join('');
+    lf+='<div style="font-size:8px;color:#666;margin-top:6px">Change in estimated strength from your first to latest logged session.</div>';
+  }else lf='<div style="font-size:10px;color:#777">Needs 2+ finished sessions of a lift.</div>';
+  html+=statCard('LIFT PROGRESS',lf);
+  // skipped
+  html+=statCard('SKIPPED, LAST 4 WEEKS',A.skips.length?A.skips.slice(0,8).map(k=>statRow(k.name,k.n+' of '+k.of+' sessions',k.n/k.of>=0.4?'#D4A84A':'#999')).join(''):'<div style="font-size:10px;color:#777">Nothing skipped.</div>');
+  // nutrition
+  let nu=statRow('Days logged (last 14)',A.nu.days+' of 14',A.nu.days>=10?'#5ABF6A':A.nu.days>=5?'#D4A84A':'#D46060');
+  if(A.nu.avgCal!=null){
+    nu+=statRow('Avg calories (logged days)',Math.round(A.nu.avgCal)+' / '+A.nu.target)+statRow('Avg protein',Math.round(A.nu.avgPro)+' / '+A.nu.tPro+' g')+statRow('Protein target hit',Math.round(A.nu.proHit*100)+'% of days',A.nu.proHit>=0.7?'#5ABF6A':'#D46060');
+    if(A.nu.worst)nu+=statRow('Most skipped meal',A.nu.worst.name+' ×'+A.nu.worst.n);
+  }
+  html+=statCard('NUTRITION',nu);
+  // body
+  let bd=statRow('Weigh-ins (last 14 days)',A.wIn+' of 14',A.wIn>=10?'#5ABF6A':A.wIn>=5?'#D4A84A':'#D46060');
+  if(A.ws.state==='ok'){
+    if(A.ws.avg!=null)bd+=statRow('7-day average',r1(A.ws.avg)+' lb');
+    if(A.ws.rate!=null)bd+=statRow('Rate',(A.ws.rate>=0?'+':'')+r2(A.ws.rate)+' lb/week · '+A.ws.status,A.ws.status==='ON PACE'?'#5ABF6A':'#D4A84A');
+    else bd+=statRow('Rate',A.ws.status,'#D4A84A');
+  }
+  if(A.wa.state==='ok')bd+=statRow('Midsection check',A.wa.label+(A.wa.n>=3?' · net '+(A.wa.net>0?'+':'')+A.wa.net:''),A.wa.trim?'#D46060':'#eee');
+  html+=statCard('BODY',bd);
+  html+='<button class="big" onclick="copyAssess()">COPY FULL ASSESSMENT</button><div style="font-size:9px;color:#777;text-align:center;margin:8px 0 24px;line-height:1.5">Paste it into our chat for a deeper read, or for your physique check-in.</div></div>';
+  document.getElementById('content').innerHTML=html;
+}
+function assessText(){
+  const A=analyze(),L=[];
+  L.push('OVERALL STATUS: '+A.verdict+' ('+A.t+')');L.push('');L.push('What to do next:');
+  A.pri.forEach(p=>L.push('- ['+p.lvl.toUpperCase()+'] '+p.txt));
+  L.push('');L.push(reportText());
+  L.push('');L.push('Priority muscle sets/week (last 4 weeks): '+A.mu.map(m=>m.k+' '+r1(m.perWeek)).join(', '));
+  if(A.nu.avgCal!=null)L.push('Nutrition (last 14 days, '+A.nu.days+' days logged): avg '+Math.round(A.nu.avgCal)+' kcal / '+Math.round(A.nu.avgPro)+' g protein, protein target hit '+Math.round(A.nu.proHit*100)+'% of days');
+  return L.join('\n');
+}
+function copyAssess(){
+  const txt=assessText();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>alert('Assessment copied. Paste it into your chat with me.')).catch(()=>prompt('Copy this assessment:',txt));
+  }else{prompt('Copy this assessment:',txt);}
+}
+
 /* ── TABS & INIT ───────────────────────────────────────────── */
 let TAB='training';
 function switchTab(tab){
   TAB=tab;
-  document.getElementById('tt').className=tab==='training'?'active':'';
-  document.getElementById('tn').className=tab==='nutrition'?'active':'';
-  document.getElementById('tg').className=tab==='grocery'?'active':'';
-  if(tab==='training')renderTraining();else if(tab==='nutrition')renderNutrition();else renderGrocery();
+  ['training:tt','nutrition:tn','grocery:tg','status:ts'].forEach(p=>{const a=p.split(':');document.getElementById(a[1]).className=tab===a[0]?'active':'';});
+  if(tab==='training')renderTraining();else if(tab==='nutrition')renderNutrition();else if(tab==='grocery')renderGrocery();else renderStatus();
   window.scrollTo(0,0);
 }
 ensureCur();
 renderTraining();
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
-function flushAll(){try{persistCur();saveAll();sset('nut',NUT);sset('wt',WT);sset('waist',WAIST);sset('adj',ADJ);}catch(e){}}
+function flushAll(){try{persistCur();saveAll();sset('nut',NUT);sset('wt',WT);sset('mid',MID);sset('adj',ADJ);}catch(e){}}
 window.addEventListener('pagehide',flushAll);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushAll();});
 if('serviceWorker' in navigator){
